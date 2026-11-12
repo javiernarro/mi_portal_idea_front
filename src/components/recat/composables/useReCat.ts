@@ -1,13 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { AxiosError } from 'axios'
+import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
-import {
-  getFichaReCat,
-  getFichasReCat,
-  getTecnicosReCat,
-  guardarComentarioReCat,
-} from '../services/recat'
-import { mensajeError, mensajeOk } from '@/helper/mensajes'
+import { getFichaReCat, getFichasReCat, getTecnicosReCat } from '../services/recat'
+import { mensajeError } from '@/helper/mensajes'
 import usePdfReCat from './usePdfReCat'
 
 const sinAcentos = (s: string) =>
@@ -69,22 +63,6 @@ export const useFichaReCat = (empleadoId: () => number | null) => {
     enabled: () => empleadoId() !== null,
   })
   return { ficha: data, isLoading: computed(() => isLoading.value) }
-}
-
-export const useComentarioReCat = () => {
-  const queryClient = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: ({ id, texto }: { id: number; texto: string }) => guardarComentarioReCat(id, texto),
-    onSuccess: (_payload, variables) => {
-      mensajeOk('Comentario guardado')
-      queryClient.invalidateQueries({ queryKey: ['getFichaReCat', variables.id] })
-    },
-    onError: (error: AxiosError) => {
-      const data = error.response?.data as { mensaje?: string } | undefined
-      mensajeError(data?.mensaje ?? 'No se pudo guardar el comentario')
-    },
-  })
-  return { guardar: mutation.mutate, guardando: computed(() => mutation.isPending.value) }
 }
 
 export const useDescargaReCat = () => {

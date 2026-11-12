@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import moment from 'moment'
 import { mismoNombre, type IFichaReCat, type IRequisitoReCat } from '../interfaces/recat'
-import { useComentarioReCat } from '../composables/useReCat'
 
 const props = defineProps<{ ficha: IFichaReCat }>()
-
-const { guardar, guardando } = useComentarioReCat()
-const comentario = ref('')
-watch(
-  () => props.ficha,
-  (f) => (comentario.value = f.comentario.texto),
-  { immediate: true },
-)
 
 const fecha = (f: string | null | undefined) => (f ? moment(f).format('DD/MM/YYYY') : '')
 const cat = (n: number) => {
@@ -20,7 +10,6 @@ const cat = (n: number) => {
   return c === 'ESPECIALISTA' ? 'Esp.' : c
 }
 const evidencia = (r: IRequisitoReCat) => {
-  if (r.avanceDetalle) return `${r.avanceDetalle.aprobados} de ${r.avanceDetalle.total} aprobados`
   if (!r.acreditado) return r.evidencia
   return mismoNombre(r.acreditado.curso, r.requisito)
     ? r.evidencia
@@ -173,43 +162,12 @@ const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0)
             <td>{{ i + 1 }}</td>
             <td class="font-semibold text-red-700 dark:text-red-400">
               {{ r.requisito }}
-              <span v-if="r.avanceDetalle" class="font-normal"
-                >({{ r.avanceDetalle.aprobados }} de {{ r.avanceDetalle.total }})</span
-              >
             </td>
             <td>{{ r.bloqueNombre }}</td>
             <td class="text-center">{{ cat(r.bloque) }}</td>
           </tr>
         </tbody>
       </table>
-    </section>
-
-    <!-- Comentarios -->
-    <section>
-      <h3 class="recat-titulo bg-amber-600">COMENTARIOS</h3>
-      <v-textarea
-        v-model="comentario"
-        rows="3"
-        autoResize
-        fluid
-        placeholder="Escribe un comentario sobre este técnico..."
-      />
-      <div class="flex justify-between items-center mt-2">
-        <span class="text-xs! text-gray-500 dark:text-zinc-400">
-          <template v-if="ficha.comentario.actualizado"
-            >Última modificación:
-            {{ moment(ficha.comentario.actualizado).format('DD/MM/YYYY HH:mm') }}</template
-          >
-        </span>
-        <v-button
-          label="Guardar comentario"
-          icon="pi pi-save"
-          size="small"
-          :loading="guardando"
-          :disabled="comentario === ficha.comentario.texto"
-          @click="guardar({ id: ficha.empleado.id, texto: comentario })"
-        />
-      </div>
     </section>
 
     <!-- No acreditadas -->

@@ -40,7 +40,6 @@ export interface IRequisitoReCat {
   estado: 'Cumplido' | 'Falta' | 'Volver a tomar'
   acreditado: ICursoTomado | null
   noAcreditado: ICursoTomado | null
-  avanceDetalle?: { aprobados: number; total: number; faltan: string[] }
 }
 
 export interface IBloqueReCat {
@@ -63,7 +62,6 @@ export interface IFichaReCat {
   noAcreditadas: IRequisitoReCat[]
   cumplidos: IRequisitoReCat[]
   opcionales: IRequisitoReCat[]
-  comentario: { texto: string; actualizado: string | null }
 }
 
 // Compara nombres de curso sin acentos, mayúsculas ni espacios dobles

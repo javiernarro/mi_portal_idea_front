@@ -17,8 +17,6 @@ const opcionesCategoria = [
 ]
 
 const seleccion = ref<ITecnicoReCat[]>([])
-const dt = ref()
-const exportCSV = () => dt.value.exportCSV()
 
 // Ficha abierta
 const empleadoId = ref<number | null>(null)
@@ -47,8 +45,6 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
     :loading="isLoading"
     sortField="nombre"
     :sortOrder="1"
-    exportFilename="consulta_recat"
-    ref="dt"
     @row-click="(e: { data: ITecnicoReCat }) => abrir(e.data)"
     class="cursor-pointer"
   >
@@ -99,13 +95,6 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
             :disabled="!seleccion.length"
             :loading="descargando"
             @click="descargar(seleccion.map((x) => x.id))"
-          />
-          <v-button
-            icon="pi pi-external-link"
-            label="Exportar"
-            size="small"
-            class="bg-green-600! border-green-600! hover:bg-green-500! hover:border-green-500!"
-            @click="exportCSV"
           />
         </div>
       </div>

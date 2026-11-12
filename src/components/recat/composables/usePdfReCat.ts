@@ -70,7 +70,6 @@ const tablaSimple = (
 }
 
 const textoEvidencia = (r: IRequisitoReCat) => {
-  if (r.avanceDetalle) return `${r.avanceDetalle.aprobados} de ${r.avanceDetalle.total} aprobados`
   if (!r.acreditado) return r.evidencia
   return mismoNombre(r.acreditado.curso, r.requisito)
     ? r.evidencia
@@ -225,9 +224,7 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
       f.faltantes.map((r, i) => [
         `${i + 1}`,
         {
-          text: r.avanceDetalle
-            ? `${r.requisito} (${r.avanceDetalle.aprobados} de ${r.avanceDetalle.total})`
-            : r.requisito,
+          text: r.requisito,
           color: ROJO,
           bold: true,
         },
@@ -237,15 +234,6 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
       [12, '*', 120, 28],
       'Sin requisitos faltantes.',
     ),
-
-    titulo('COMENTARIOS', NARANJA),
-    {
-      text: f.comentario.texto || 'Sin comentarios.',
-      fontSize: 8,
-      bold: !!f.comentario.texto,
-      color: f.comentario.texto ? undefined : GRIS,
-      margin: [4, 0, 0, 0],
-    },
 
     titulo('CAPACITACIONES NO ACREDITADAS — DEBE TOMARLAS DE NUEVO', NARANJA),
     tablaSimple(
