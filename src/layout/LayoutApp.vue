@@ -133,6 +133,11 @@ const menu = computed(() => {
           icon: 'pi pi-briefcase',
           hidden: !verificarPermiso('Requerimientos.Ver'),
         },
+        {
+          href: '/consulta-recat',
+          title: 'Consulta Re-Cat',
+          icon: 'pi pi-search',
+        },
       ],
     },
   ]

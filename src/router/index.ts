@@ -25,6 +25,7 @@ import { sucursalRutas } from '@/components/sucursal/router'
 import { ubicacionRutas } from '@/components/ubicacion/router'
 import { createRouter, createWebHistory } from 'vue-router'
 import VerificarCuentaPage from '@/pages/VerificarCuentaPage.vue'
+import ConsultaReCatPage from '@/pages/ConsultaReCatPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -99,6 +100,12 @@ const router = createRouter({
     {
       ...requerimientoRutas,
       path: '/requerimientos',
+    },
+    {
+      path: '/consulta-recat',
+      name: 'consulta-recat',
+      beforeEnter: [verificarAutenticacion],
+      component: ConsultaReCatPage,
     },
     {
       ...sucursalRutas,
