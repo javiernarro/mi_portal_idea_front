@@ -140,7 +140,6 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
       text: `Centro de Entrenamiento · Komatsu Maquinarias México · Generada el ${moment().format('DD/MM/YYYY HH:mm')}`,
       fontSize: 9,
       color: '#374151',
-      alignment: 'center',
       margin: [0, 4, 0, 10],
     },
     {
@@ -267,7 +266,6 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
         `${i + 1}`,
         {
           text: r.requisito,
-          color: ROJO,
           bold: true,
         },
         r.bloqueNombre,
