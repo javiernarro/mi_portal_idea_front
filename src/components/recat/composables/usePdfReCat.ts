@@ -4,10 +4,18 @@ import 'pdfmake/build/vfs_fonts'
 import moment from 'moment'
 import { mismoNombre, type IFichaReCat, type IRequisitoReCat } from '../interfaces/recat'
 
-const AZUL = '#283d98'
+// Azul Komatsu (medido en la imagen de Javier): RGB 14, 19, 113 · CMYK aprox. C88 M83 Y0 K56
+const AZUL = '#0e1371'
 const ROJO = '#c0392b'
 const VERDE = '#1e8449'
 const NARANJA = '#d68910'
+// Tonos más fuertes solo para los números de los indicadores
+const VERDE_FUERTE = '#0b6b2e'
+const ROJO_FUERTE = '#b0170c'
+const NARANJA_FUERTE = '#c45a00'
+// Carta: 612 x 792 pt. Margen de media pulgada (36 pt) para que ninguna impresora corte
+const MARGEN = 36
+const ANCHO_UTIL = 612 - MARGEN * 2
 const GRIS = '#6b7280'
 const FONDO = '#eef0f6'
 
@@ -85,13 +93,19 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
   const e = f.empleado
   const ind = f.indicadores
   // Etiqueta pequeña arriba y valor abajo
-  const dato = (etiqueta: string, valor: string, extra: { colSpan?: number } = {}): TableCell => ({
+  const dato = (
+    etiqueta: string,
+    valor: string,
+    extra: { colSpan?: number } = {},
+    destacado = false,
+  ): TableCell => ({
     stack: [
       { text: etiqueta.toUpperCase(), fontSize: 6.5, color: GRIS },
       {
         text: valor,
         bold: true,
-        fontSize: 9,
+        fontSize: destacado ? 13 : 9,
+        color: destacado ? AZUL : undefined,
         margin: [0, 1, 0, 0] as [number, number, number, number],
       },
     ],
@@ -112,8 +126,9 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
               ],
               color: 'white',
               fontSize: 12,
+              alignment: 'center',
               fillColor: AZUL,
-              margin: [6, 5, 6, 5],
+              margin: [6, 6, 6, 6],
             },
           ],
         ],
@@ -123,10 +138,10 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
     },
     {
       text: `Centro de Entrenamiento · Komatsu Maquinarias México · Generada el ${moment().format('DD/MM/YYYY HH:mm')}`,
-      fontSize: 7,
-      italics: true,
-      color: GRIS,
-      margin: [0, 2, 0, 8],
+      fontSize: 9,
+      color: '#374151',
+      alignment: 'center',
+      margin: [0, 4, 0, 10],
     },
     {
       columns: [
@@ -138,8 +153,8 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
               [dato('No. de empleado', e.numero), dato('Nombre', e.nombre, { colSpan: 2 }), {}],
               [dato('Puesto', e.cargo, { colSpan: 2 }), {}, dato('Sucursal', e.sucursal)],
               [
-                dato('Categoría actual', e.categoriaTexto),
-                dato('Próxima categoría', e.siguiente ?? 'Categoría máxima'),
+                dato('Categoría actual', e.categoriaTexto, {}, true),
+                dato('Próxima categoría', e.siguiente ?? 'Categoría máxima', {}, true),
                 {},
               ],
             ],
@@ -195,7 +210,8 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
             (t) => ({
               text: t,
               fontSize: 6.5,
-              color: GRIS,
+              color: t === 'REQUISITOS QUE APLICAN' || t === 'AVANCE' ? AZUL : GRIS,
+              bold: t === 'REQUISITOS QUE APLICAN' || t === 'AVANCE',
               alignment: 'center',
               fillColor: FONDO,
               margin: [0, 4, 0, 0],
@@ -203,9 +219,9 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
           ),
           [
             { text: `${ind.requisitos}`, color: AZUL },
-            { text: `${ind.cumplidos}`, color: VERDE },
-            { text: `${ind.faltan}`, color: ROJO },
-            { text: `${ind.volverATomar}`, color: NARANJA },
+            { text: `${ind.cumplidos}`, color: VERDE_FUERTE },
+            { text: `${ind.faltan}`, color: ROJO_FUERTE },
+            { text: `${ind.volverATomar}`, color: NARANJA_FUERTE },
             { text: `${ind.avance}%`, color: AZUL },
           ].map((c) => ({
             ...c,
@@ -219,7 +235,7 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
       },
       layout: 'noBorders',
     },
-    { ...(barra(ind.avance, 552, 5) as object), margin: [0, 2, 0, 0] } as Content,
+    { ...(barra(ind.avance, ANCHO_UTIL, 5) as object), margin: [0, 2, 0, 0] } as Content,
 
     titulo('AVANCE POR BLOQUE'),
     tablaSimple(
@@ -326,7 +342,7 @@ const usePdfReCat = () => {
     if (!fichas.length) return
     const doc: TDocumentDefinitions = {
       pageSize: 'LETTER',
-      pageMargins: [30, 30, 30, 36],
+      pageMargins: [MARGEN, MARGEN, MARGEN, MARGEN + 6],
       info: { title: 'Fichas de Re Categorización' },
       defaultStyle: { fontSize: 9 },
       footer: (pagina: number, total: number) => ({
@@ -334,7 +350,7 @@ const usePdfReCat = () => {
         alignment: 'right',
         fontSize: 7,
         color: GRIS,
-        margin: [0, 10, 30, 0],
+        margin: [0, 14, MARGEN, 0],
       }),
       content: fichas.flatMap((f, i) => contenidoFicha(f, i === 0)),
     }
