@@ -89,6 +89,70 @@ const categoriaDeBloque = (f: IFichaReCat, numero: number) => {
   return c === 'ESPECIALISTA' ? 'Esp.' : (c ?? '')
 }
 
+// Cierre de la ficha con recomendaciones (texto aprobado por Javier, 12-nov-2026)
+const siguientesPasos = (cumple: boolean): Content[] => {
+  const parrafo = (text: Content, margin: [number, number, number, number] = [0, 0, 0, 6]) =>
+    ({ text, fontSize: 9, lineHeight: 1.2, margin }) as Content
+  if (cumple) {
+    return [
+      { ...(titulo('SIGUIENTES PASOS') as object), unbreakable: true } as Content,
+      parrafo([
+        { text: '¡Felicidades! ', bold: true },
+        'Cumples con los requisitos de capacitación para tu próxima categoría y podrás ser considerado para la evaluación de recategorización. Mantén tus cursos al día en Rankmi y en el portal, y consulta a tu supervisor sobre los siguientes pasos de tu evaluación.',
+      ]),
+    ]
+  }
+  const punto = (titulo: string, texto: string): Content => ({
+    text: [{ text: titulo + ' ', bold: true }, texto],
+    fontSize: 9,
+    lineHeight: 1.2,
+    margin: [0, 0, 0, 4],
+  })
+  return [
+    {
+      unbreakable: true,
+      stack: [
+        titulo('SIGUIENTES PASOS'),
+        parrafo(
+          'Tu plan de carrera avanza con cada curso que acreditas. Completa tus requisitos faltantes, presenciales y de e-learning, para estar listo cuando llegue tu siguiente oportunidad. Te recomendamos:',
+        ),
+        {
+          ol: [
+            punto(
+              'Revisa con frecuencia tus cursos asignados en Rankmi',
+              'para mantener al día tus e-learning. Si no acreditas alguno, pide apoyo a tu Coordinador de Personas y Sustentabilidad.',
+            ),
+            punto(
+              'Consulta en el portal el calendario de capacitaciones',
+              'y pide a tu supervisor que te inscriba en los cursos pendientes, faltantes o por volver a tomar.',
+            ),
+            punto(
+              'Revisa tu ficha de manera periódica',
+              'para conocer tu avance y saber qué te falta en cada bloque. Un curso cuenta cuando lo acreditas con 80 o más.',
+            ),
+            punto(
+              'Acredita a la primera.',
+              'Prepárate, participa activamente y aprovecha cada curso; un curso no acreditado debe tomarse de nuevo y retrasa tu avance.',
+            ),
+          ],
+          margin: [8, 0, 0, 4],
+        },
+        parrafo(
+          [
+            'Al completar tus requisitos podrás ser considerado para la evaluación de recategorización. ',
+            {
+              text: '¡Tu desarrollo depende de ti, y en el Centro de Entrenamiento te acompañamos!',
+              bold: true,
+              color: AZUL,
+            },
+          ],
+          [0, 2, 0, 0],
+        ),
+      ],
+    },
+  ]
+}
+
 const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
   const e = f.empleado
   const ind = f.indicadores
@@ -323,15 +387,7 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
       [12, '*', 110, 50, 50],
       '',
     ),
-    {
-      text: f.cumple
-        ? 'Siguiente paso: cumple los requisitos de cursos; puede ser considerado para la evaluación anual.'
-        : 'Siguiente paso: programar los requisitos faltantes. Al completarlos podrá ser considerado para la evaluación anual.',
-      fontSize: 8,
-      italics: true,
-      color: GRIS,
-      margin: [0, 12, 0, 0],
-    },
+    ...siguientesPasos(f.cumple),
   ]
 }
 
