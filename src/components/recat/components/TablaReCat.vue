@@ -4,8 +4,7 @@ import type { ITecnicoReCat } from '../interfaces/recat'
 import { useDescargaReCat, useFichaReCat, useTecnicosReCat } from '../composables/useReCat'
 import FichaReCat from './FichaReCat.vue'
 
-const { filtrados, tecnicos, sucursales, texto, sucursal, categoria, limpiar, isLoading } =
-  useTecnicosReCat()
+const { filtrados, sucursales, texto, sucursal, categoria, isLoading } = useTecnicosReCat()
 const { descargar, descargando } = useDescargaReCat()
 
 const opcionesCategoria = [
@@ -41,57 +40,46 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
     rowHover
     paginator
     :rows="20"
-    :rowsPerPageOptions="[20, 40, 60, 100]"
+    :rowsPerPageOptions="[20, 40, 60]"
     :loading="isLoading"
     sortField="nombre"
     :sortOrder="1"
-    @row-click="(e: { data: ITecnicoReCat }) => abrir(e.data)"
-    class="cursor-pointer"
   >
     <template #header>
-      <div class="flex flex-wrap gap-3 items-center">
-        <v-iconfield style="width: 18rem; max-width: 100%">
-          <v-inputicon><i class="pi pi-search" /></v-inputicon>
-          <v-inputtext fluid v-model="texto" placeholder="Nombre o número de empleado" />
-        </v-iconfield>
-        <v-floatlabel variant="on" style="width: 16rem; max-width: 100%">
-          <v-select
-            fluid
-            v-model="sucursal"
-            :options="sucursales"
-            showClear
-            filter
-            inputId="sucursal"
-          />
-          <label for="sucursal">Sucursal</label>
-        </v-floatlabel>
-        <v-floatlabel variant="on" style="width: 11rem; max-width: 100%">
-          <v-select
-            fluid
-            v-model="categoria"
-            :options="opcionesCategoria"
-            optionLabel="item"
-            optionValue="value"
-            showClear
-            inputId="categoria"
-          />
-          <label for="categoria">Categoría</label>
-        </v-floatlabel>
-        <v-button
-          icon="pi pi-filter-slash"
-          label="Limpiar"
-          size="small"
-          outlined
-          @click="limpiar"
-        />
-        <span class="text-sm! text-gray-500 dark:text-zinc-400">
-          {{ filtrados.length }} de {{ tecnicos.length }} técnicos
-        </span>
-        <div class="flex gap-2 md:ml-auto">
+      <div className="grid grid-cols-12 gap-4">
+        <div class="col-span-2">
+          <v-iconfield>
+            <v-inputicon>
+              <i class="pi pi-search" />
+            </v-inputicon>
+            <v-inputtext fluid v-model="texto" placeholder="Buscar..." />
+          </v-iconfield>
+        </div>
+        <div className="col-span-2 col-start-3 row-start-1">
+          <v-floatlabel variant="on">
+            <v-select fluid v-model="sucursal" :options="sucursales" showClear filter />
+            <label for="sucursal">Sucursal</label>
+          </v-floatlabel>
+        </div>
+        <div className="col-span-2 col-start-5 row-start-1">
+          <v-floatlabel variant="on">
+            <v-select
+              fluid
+              v-model="categoria"
+              :options="opcionesCategoria"
+              optionLabel="item"
+              optionValue="value"
+              showClear
+            />
+            <label for="categoria">Categoría</label>
+          </v-floatlabel>
+        </div>
+        <div className="col-span-2 col-start-11 row-start-1">
           <v-button
             icon="pi pi-download"
             :label="`Descargar fichas (${seleccion.length})`"
             size="small"
+            class="w-full"
             :disabled="!seleccion.length"
             :loading="descargando"
             @click="descargar(seleccion.map((x) => x.id))"
@@ -100,7 +88,13 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
       </div>
     </template>
 
-    <template #empty> No se encontraron técnicos. </template>
+    <template #empty> No se encontraron datos. </template>
+    <template #loading>
+      <div class="flex flex-col items-center justify-center">
+        <v-progressspinner />
+        <span class="text-3xl! text-white">Cargando datos...</span>
+      </div>
+    </template>
 
     <v-column selectionMode="multiple" headerStyle="width: 3rem" :exportable="false" />
     <v-column field="numero" header="Número empleado" sortable />
@@ -109,17 +103,7 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
     <v-column field="categoriaTexto" header="Categoría" sortable sortField="categoria" />
     <v-column field="siguiente" header="Próxima" sortable />
     <v-column field="avance" header="Avance" sortable>
-      <template #body="{ data }: { data: ITecnicoReCat }">
-        <div class="flex items-center gap-2 min-w-32">
-          <div class="flex-1 h-2 rounded bg-[#d9dcea] dark:bg-zinc-700 overflow-hidden">
-            <div
-              class="h-full bg-[#283d98] dark:bg-[#8ea0f0]"
-              :style="{ width: data.avance + '%' }"
-            />
-          </div>
-          <span class="w-12 text-right tabular-nums">{{ data.avance }}%</span>
-        </div>
-      </template>
+      <template #body="{ data }: { data: ITecnicoReCat }">{{ data.avance }}%</template>
     </v-column>
     <v-column field="cumplidos" header="Cumplidos" sortable>
       <template #body="{ data }: { data: ITecnicoReCat }"
@@ -137,7 +121,7 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
         />
       </template>
     </v-column>
-    <v-column header="Ficha" :exportable="false">
+    <v-column header="Acciones" :exportable="false">
       <template #body="{ data }: { data: ITecnicoReCat }">
         <div class="flex justify-center">
           <v-button
@@ -153,13 +137,11 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
 
   <v-dialog
     v-model:visible="visible"
-    modal
-    maximizable
+    :style="{ width: '70%' }"
     header="Ficha de Re Categorización"
-    :style="{ width: '72rem' }"
-    :breakpoints="{ '1199px': '90vw', '640px': '100vw' }"
+    :modal="true"
   >
-    <div v-if="cargandoFicha || !ficha" class="flex justify-center p-10">
+    <div v-if="cargandoFicha || !ficha" class="flex justify-center">
       <v-progressspinner />
     </div>
     <FichaReCat v-else :ficha="ficha" />
