@@ -6,6 +6,15 @@
   <link rel="icon" href="/tractor-tire.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi portal</title>
+  <script>
+    // Aplica el modo oscuro antes de pintar, para que no parpadee en blanco
+    try {
+      var m = localStorage.getItem('mi-portal-modo-oscuro');
+      if (m === 'si' || (m === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('app-dark');
+      }
+    } catch (e) {}
+  </script>
 </head>
 
 <body>

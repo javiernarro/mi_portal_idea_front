@@ -537,7 +537,7 @@ const onSubmit = handleSubmit((values) => {
         >
           <template #content>
             <!-- Nombre del archivo -->
-            <div v-if="imageName" class="mt-2 text-sm text-gray-700">
+            <div v-if="imageName" class="mt-2 text-sm text-gray-700 dark:text-zinc-300">
               Archivo seleccionado: <strong>{{ imageName }}</strong>
             </div>
 
