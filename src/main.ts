@@ -78,6 +78,7 @@ import {
 
 import App from './App.vue'
 import router from './router'
+import '@/composables/useModoOscuro'
 
 addIcons(
   FaUsers,
@@ -131,7 +132,7 @@ app.use(PrimeVue, {
     preset: MiTemaPreset,
     options: {
       prefix: 'my',
-      darkModeSelector: 'white',
+      darkModeSelector: '.app-dark',
       cssLayer: false,
     },
   },

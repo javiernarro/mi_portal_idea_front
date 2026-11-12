@@ -194,7 +194,7 @@ const onFileRemove = () => {
         >
           <template #content>
             <!-- Nombre del archivo -->
-            <div v-if="pdfName" class="mt-2 text-sm text-gray-700">
+            <div v-if="pdfName" class="mt-2 text-sm text-gray-700 dark:text-zinc-300">
               Archivo seleccionado: <strong>{{ pdfName }}</strong>
             </div>
 

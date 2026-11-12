@@ -73,7 +73,7 @@ const submit = handleSubmit((values: IPerfil) => {
     </Field>
 
     <v-fieldset v-for="modulo in modulos" :legend="modulo.nombre" :key="modulo.id">
-      <div v-for="permiso in modulo.permisos" :key="permiso.id" class="bg-gray-200 m-2 rounded-md">
+      <div v-for="permiso in modulo.permisos" :key="permiso.id" class="bg-gray-200 dark:bg-zinc-800 m-2 rounded-md">
         <div class="flex justify-between gap-3 p-2">
           <span class="text-[16px]!">{{ permiso.descripcion }}</span>
           <v-toggleswitch v-model="permiso.seleccionado" />
