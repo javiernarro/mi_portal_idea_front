@@ -4,12 +4,12 @@ export const schema = yup.object({
   // clases: yup.number().default(1),
   tieneOrden: yup.boolean().default(false),
   fechaInicio: yup.date().typeError('Debes ingrasar una fecha').required('El campo es requerido'),
-  horaInicio: yup.date().typeError('Debes ingrasar una fecha').required('El campo es requerido'),
+  horaInicio: yup.mixed().required('El campo es requerido'),
   fechaFinalizacion: yup
     .date()
     .typeError('Debes ingrasar una fecha')
     .required('El campo es requerido'),
-  horaFinalizacion: yup.date().required('El campo es requerido'),
+  horaFinalizacion: yup.mixed().required('El campo es requerido'),
   duracion: yup.string().required('El campo es requerido'),
   tipo_clase: yup.string().default('presencial').required('El campo es requerido'),
   tipo_curso: yup.string().required('El campo es requerido'),

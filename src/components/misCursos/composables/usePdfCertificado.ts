@@ -280,7 +280,7 @@ const usePdfCertificado = () => {
             // Valor: Nombre del curso
             [
               {
-                text: `${payload.clase!.curso.nombre} ${payload.clase?.modelo?.nombre}`,
+                text: `${payload.clase!.curso.nombre}${payload.clase?.modelo?.nombre ? ' ' + payload.clase.modelo.nombre : ''}`,
                 bold: false,
                 margin: [0, 2, 0, 2],
                 fontSize: 11,
@@ -414,13 +414,13 @@ const usePdfCertificado = () => {
                 alignment: 'center',
               },
               {
-                text: `${moment(payload.clase!.fechaInicio).format('MM')}`,
+                text: `${moment(payload.clase!.fechaFinalizacion).format('MM')}`,
                 bold: false,
                 fontSize: 11,
                 alignment: 'center',
               },
               {
-                text: `${moment(payload.clase!.fechaInicio).format('DD')}`,
+                text: `${moment(payload.clase!.fechaFinalizacion).format('DD')}`,
                 bold: false,
                 fontSize: 11,
                 alignment: 'center',
@@ -490,7 +490,7 @@ const usePdfCertificado = () => {
             // Valor: Agente capacitador
             [
               {
-                text: `KOMATSU MAQUINARIAS MEXICO S.A. DE C.V.       RFC: RMA910702IW1        Y5445837106`,
+                text: `KOMATSU MAQUINARIAS MEXICO S.A. DE C.V.       RFC: RMA910702IW1        G991087810`,
                 bold: false,
                 fontSize: 11,
                 margin: [0, 2, 0, 2],

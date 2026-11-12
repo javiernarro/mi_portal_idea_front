@@ -17,7 +17,7 @@ import { formatearNombre } from '@/helper/formatearNombre'
 import { parseLocalDate } from '@/helper/parseLocalDate'
 import moment from 'moment'
 import { ErrorMessage, Field, useForm } from 'vee-validate'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { schema } from '../helpers/schema'
 import type { IClase } from '../interfaces/clase'
 import type { Props } from '../interfaces/props'
@@ -34,21 +34,64 @@ const { modelos, buscarModelo } = useModelosPorNombre()
 
 estatus.value = clase?.estatus === undefined ? 'Liberada' : 'Cerrada'
 
+// Normaliza cualquier valor de hora a "HH:mm" (acepta Date, "H:mm", "HH:mm:ss" y formatos de moment)
+const normalizarHora = (valor: unknown, horasExtra = 0): string => {
+  if (!valor) return moment().add(horasExtra, 'hour').format('HH:mm')
+  if (valor instanceof Date) {
+    if (isNaN(valor.getTime())) return moment().add(horasExtra, 'hour').format('HH:mm')
+    const h = String(valor.getHours()).padStart(2, '0')
+    const m = String(valor.getMinutes()).padStart(2, '0')
+    return `${h}:${m}`
+  }
+  if (typeof valor === 'string') {
+    const texto = valor.trim()
+    if (/^\d{1,2}:\d{2}$/.test(texto)) {
+      const partes = texto.split(':')
+      return `${partes[0]!.padStart(2, '0')}:${partes[1]}`
+    }
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(texto)) {
+      const partes = texto.split(':')
+      return `${partes[0]!.padStart(2, '0')}:${partes[1]}`
+    }
+  }
+  const fecha = moment(valor as string, [
+    'HH:mm',
+    'HH:mm:ss',
+    'h:mm A',
+    'h:mm a',
+    'hh:mm A',
+    'hh:mm a',
+    'YYYY-MM-DD HH:mm:ss',
+    moment.ISO_8601,
+  ])
+  return fecha.isValid() ? fecha.format('HH:mm') : moment().add(horasExtra, 'hour').format('HH:mm')
+}
+
+// Normaliza cualquier valor de fecha a "YYYY-MM-DD"
+const normalizarFecha = (valor: unknown): string => {
+  if (!valor) return moment().format('YYYY-MM-DD')
+  if (valor instanceof Date) {
+    if (isNaN(valor.getTime())) return moment().format('YYYY-MM-DD')
+    const y = valor.getFullYear()
+    const m = String(valor.getMonth() + 1).padStart(2, '0')
+    const d = String(valor.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  const texto = String(valor).trim()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return texto
+  const fecha = moment(texto, ['YYYY-MM-DD', 'DD/MM/YYYY', 'DD-MM-YYYY', 'YYYY/MM/DD', moment.ISO_8601])
+  return fecha.isValid() ? fecha.format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')
+}
+
 const initialValues = computed(() => {
   return clase
     ? {
         ...schema.getDefault(),
         ...clase,
         fechaInicio: parseLocalDate(clase.fechaInicio),
-        horaInicio: moment(
-          `${clase.fechaInicio} ${clase.horaInicio}`,
-          'YYYY-MM-DD HH:mm:ss',
-        ).toDate(),
+        horaInicio: normalizarHora(clase.horaInicio, 1),
         fechaFinalizacion: parseLocalDate(clase.fechaFinalizacion),
-        horaFinalizacion: moment(
-          `${clase.fechaFinalizacion} ${clase.horaFinalizacion}`,
-          'YYYY-MM-DD HH:mm:ss',
-        ).toDate(),
+        horaFinalizacion: normalizarHora(clase.horaFinalizacion, 2),
         cursoId: clase.cursoId,
         representanteEmpresaId: clase.representanteEmpresaId,
         representanteEmpleadosId: clase.representanteEmpleadosId,
@@ -56,36 +99,68 @@ const initialValues = computed(() => {
     : {
         ...schema.getDefault(),
         fechaInicio: new Date(),
-        horaInicio: moment().add(1, 'hour').toDate(),
+        horaInicio: moment().add(1, 'hour').format('HH:mm'),
         fechaFinalizacion: new Date(),
-        horaFinalizacion: moment().add(2, 'hour').toDate(),
+        horaFinalizacion: moment().add(2, 'hour').format('HH:mm'),
         instructores: [],
         alumnos: [],
       }
 })
 
 const { handleSubmit, values, setFieldValue } = useForm<IClase>({
-  initialValues: initialValues.value,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialValues: initialValues.value as any,
   validationSchema: schema,
 })
 
-const calcularDuracion = () => {
-  const fecha1 = moment(values.fechaInicio).format('YYYY-MM-DD')
-  const hora1 = moment(values.horaInicio).format('HH:mm')
-  const fecha2 = moment(values.fechaFinalizacion).format('YYYY-MM-DD')
-  const hora2 = moment(values.horaFinalizacion).format('HH:mm')
-
-  const inicio = moment(`${fecha1} ${hora1}:00`, 'YYYY-MM-DD HH:mm:ss')
-  const fin = moment(`${fecha2} ${hora2}:00`, 'YYYY-MM-DD HH:mm:ss')
-
-  const diffMinutos = fin.diff(inicio, 'minutes')
-
-  const horas = Math.floor(diffMinutos / 60)
-  const minutos = diffMinutos % 60
-
-  const duracion = `${horas}h ${minutos}m`
-  setFieldValue('duracion', duracion)
+const horaAMinutos = (valor: unknown): number | null => {
+  if (!valor) return null
+  if (valor instanceof Date) return valor.getHours() * 60 + valor.getMinutes()
+  const partes = String(valor).trim().split(':')
+  if (partes.length >= 2) {
+    const h = parseInt(partes[0]!, 10)
+    const m = parseInt(partes[1]!, 10)
+    if (!isNaN(h) && !isNaN(m)) return h * 60 + m
+  }
+  return null
 }
+
+// Duración = días de la clase × horas por día
+const calcularDuracion = () => {
+  if (!values.fechaInicio || !values.horaInicio || !values.fechaFinalizacion || !values.horaFinalizacion)
+    return
+  const inicio = moment(values.fechaInicio).startOf('day')
+  const dias = moment(values.fechaFinalizacion).startOf('day').diff(inicio, 'days') + 1
+  if (dias <= 0) {
+    setFieldValue('duracion', '0h 0m')
+    return
+  }
+  const minInicio = horaAMinutos(values.horaInicio)
+  const minFin = horaAMinutos(values.horaFinalizacion)
+  if (minInicio === null || minFin === null) return
+  const minutosPorDia = minFin - minInicio
+  if (minutosPorDia <= 0) {
+    setFieldValue('duracion', '0h 0m')
+    return
+  }
+  const total = dias * minutosPorDia
+  const horas = Math.floor(total / 60)
+  const minutos = total % 60
+  setFieldValue('duracion', `${horas}h ${minutos}m`)
+}
+
+watch(
+  [
+    () => values.fechaInicio,
+    () => values.horaInicio,
+    () => values.fechaFinalizacion,
+    () => values.horaFinalizacion,
+  ],
+  () => {
+    calcularDuracion()
+  },
+  { deep: true },
+)
 
 const seleccionarRepresentanteEmpresa = (empleado: IEmpleado) => {
   setFieldValue('representanteEmpresaId', empleado.id)
@@ -96,7 +171,15 @@ const seleccionarRepresentanteEmpleados = (empleado: IEmpleado) => {
 }
 
 const submit = handleSubmit((values: IClase) => {
-  guardar?.(values)
+  const datos = {
+    ...values,
+    fechaInicio: normalizarFecha(values.fechaInicio),
+    fechaFinalizacion: normalizarFecha(values.fechaFinalizacion),
+    horaInicio: normalizarHora(values.horaInicio, 1),
+    horaFinalizacion: normalizarHora(values.horaFinalizacion, 2),
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  guardar?.(datos as any)
 })
 
 onMounted(() => {
@@ -190,15 +273,13 @@ onMounted(() => {
 
       <Field name="horaInicio" v-slot="{ field, meta, errors }">
         <div>
-          <label for="horaInicio">Hora</label>
-          <v-datepicker
+          <label for="horaInicio">Hora de inicio</label>
+          <v-inputtext
+            id="horaInicio"
+            type="time"
             fluid
-            showIcon
-            timeOnly
-            hourFormat="24"
             :modelValue="field.value"
             @update:modelValue="field.onChange"
-            v-on:value-change="calcularDuracion"
             :invalid="meta.touched && errors.length > 0"
             :disabled="clase?.estatus === 'en curso' || clase?.estatus === 'finalizada'"
           />
@@ -210,6 +291,7 @@ onMounted(() => {
         <div>
           <label for="fechaFinalizacion">Fecha de finalizacion</label>
           <v-datepicker
+            id="fechaFinalizacion"
             fluid
             showIcon
             dateFormat="dd/mm/yy"
@@ -226,15 +308,13 @@ onMounted(() => {
 
       <Field name="horaFinalizacion" v-slot="{ field, meta, errors }">
         <div>
-          <label for="horaFinalizacion">Hora</label>
-          <v-datepicker
+          <label for="horaFinalizacion">Hora de finalización</label>
+          <v-inputtext
+            id="horaFinalizacion"
+            type="time"
             fluid
-            showIcon
-            timeOnly
-            hourFormat="24"
             :modelValue="field.value"
             @update:modelValue="field.onChange"
-            v-on:value-change="calcularDuracion"
             :invalid="meta.touched && errors.length > 0"
             :disabled="clase?.estatus === 'en curso' || clase?.estatus === 'finalizada'"
           />
