@@ -40,7 +40,7 @@ const titulo = (texto: string, color = AZUL): Content => ({
     ],
   },
   layout: 'noBorders',
-  margin: [0, 12, 0, 4],
+  margin: [0, 10, 0, 3],
 })
 
 const tablaSimple = (
@@ -84,10 +84,20 @@ const categoriaDeBloque = (f: IFichaReCat, numero: number) => {
 const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
   const e = f.empleado
   const ind = f.indicadores
-  const dato = (etiqueta: string, valor: string, grande = false): TableCell[] => [
-    { text: etiqueta, fontSize: 7, color: GRIS, alignment: 'right' },
-    { text: valor, bold: true, fontSize: grande ? 11 : 9, color: grande ? AZUL : undefined },
-  ]
+  // Etiqueta pequeña arriba y valor abajo
+  const dato = (etiqueta: string, valor: string, extra: { colSpan?: number } = {}): TableCell => ({
+    stack: [
+      { text: etiqueta.toUpperCase(), fontSize: 6.5, color: GRIS },
+      {
+        text: valor,
+        bold: true,
+        fontSize: 9,
+        margin: [0, 1, 0, 0] as [number, number, number, number],
+      },
+    ],
+    margin: [0, 3, 0, 3] as [number, number, number, number],
+    ...extra,
+  })
 
   return [
     {
@@ -123,26 +133,34 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
         {
           width: '*',
           table: {
-            widths: [90, '*'],
+            widths: [95, '*', 110],
             body: [
-              dato('No. de empleado', e.numero, true),
-              dato('Nombre', e.nombre),
-              dato('Puesto', e.cargo),
-              dato('Sucursal', e.sucursal),
-              dato('Categoría actual', e.categoriaTexto, true),
-              dato('Próxima categoría', e.siguiente ?? 'Ninguna (categoría máxima)', true),
+              [dato('No. de empleado', e.numero), dato('Nombre', e.nombre, { colSpan: 2 }), {}],
+              [dato('Puesto', e.cargo, { colSpan: 2 }), {}, dato('Sucursal', e.sucursal)],
+              [
+                dato('Categoría actual', e.categoriaTexto),
+                dato('Próxima categoría', e.siguiente ?? 'Categoría máxima'),
+                {},
+              ],
             ],
           },
-          layout: 'noBorders',
+          layout: {
+            hLineWidth: (i: number, node: { table: { body: unknown[] } }) =>
+              i === 0 || i === node.table.body.length ? 0 : 0.5,
+            vLineWidth: () => 0,
+            hLineColor: () => '#d9dcea',
+            paddingLeft: () => 0,
+          },
         },
         {
-          width: 190,
+          width: 150,
           stack: [
             {
               text: '¿CUMPLE PARA SU PRÓXIMA CATEGORÍA?',
-              fontSize: 7,
+              fontSize: 6.5,
               color: GRIS,
               alignment: 'center',
+              margin: [0, 0, 0, 3],
             },
             {
               table: {
@@ -153,10 +171,10 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
                       text: f.cumple ? 'CUMPLE' : 'NO CUMPLE',
                       color: 'white',
                       bold: true,
-                      fontSize: 18,
+                      fontSize: 13,
                       alignment: 'center',
                       fillColor: f.cumple ? VERDE : ROJO,
-                      margin: [0, 18, 0, 18],
+                      margin: [0, 25, 0, 25],
                     },
                   ],
                 ],
@@ -166,20 +184,21 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
           ],
         },
       ],
-      columnGap: 12,
+      columnGap: 16,
     },
     {
-      margin: [0, 10, 0, 0],
+      margin: [0, 12, 0, 0],
       table: {
         widths: ['*', '*', '*', '*', '*'],
         body: [
           ['REQUISITOS QUE APLICAN', 'CUMPLIDOS', 'FALTAN', 'VOLVER A TOMAR', 'AVANCE'].map(
             (t) => ({
               text: t,
-              fontSize: 7,
+              fontSize: 6.5,
               color: GRIS,
               alignment: 'center',
               fillColor: FONDO,
+              margin: [0, 4, 0, 0],
             }),
           ),
           [
@@ -188,12 +207,19 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
             { text: `${ind.faltan}`, color: ROJO },
             { text: `${ind.volverATomar}`, color: NARANJA },
             { text: `${ind.avance}%`, color: AZUL },
-          ].map((c) => ({ ...c, fontSize: 16, bold: true, alignment: 'center', fillColor: FONDO })),
+          ].map((c) => ({
+            ...c,
+            fontSize: 13,
+            bold: true,
+            alignment: 'center',
+            fillColor: FONDO,
+            margin: [0, 0, 0, 3],
+          })),
         ],
       },
       layout: 'noBorders',
     },
-    { ...(barra(ind.avance, 552) as object), margin: [0, 2, 0, 0] } as Content,
+    { ...(barra(ind.avance, 552, 5) as object), margin: [0, 2, 0, 0] } as Content,
 
     titulo('AVANCE POR BLOQUE'),
     tablaSimple(
