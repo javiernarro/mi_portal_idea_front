@@ -137,6 +137,7 @@ const menu = computed(() => {
           href: '/consulta-recat',
           title: 'Consulta Re-Cat',
           icon: 'pi pi-search',
+          hidden: !verificarPermiso('ConsultaReCat.Ver'),
         },
       ],
     },

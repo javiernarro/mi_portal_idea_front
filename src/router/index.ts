@@ -105,6 +105,9 @@ const router = createRouter({
       path: '/consulta-recat',
       name: 'consulta-recat',
       beforeEnter: [verificarAutenticacion],
+      meta: {
+        ruta_permitida: 'ConsultaReCat.Ver',
+      },
       component: ConsultaReCatPage,
     },
     {

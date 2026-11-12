@@ -51,8 +51,9 @@ export const verificarSiMostrarCapacitacion = () => {
   const cursos = verificarPermiso('Cursos.Ver')
   const clases = verificarPermiso('Clases.Ver')
   const requerimientos = verificarPermiso('Requerimientos.Ver')
+  const consultaReCat = verificarPermiso('ConsultaReCat.Ver')
 
-  if (cursos || clases || requerimientos) {
+  if (cursos || clases || requerimientos || consultaReCat) {
     return true
   }
   return false
