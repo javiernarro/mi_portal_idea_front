@@ -5,8 +5,12 @@ import FormularioArchivosClase from '../components/FormularioArchivosClase.vue'
 import useGuardarArchivosClase from '../composables/useGuardarArchivosClase'
 import TablaArchivosClase from '../components/TablaArchivosClase.vue'
 import { useRoute } from 'vue-router'
+import { verificarPermiso } from '@/guards/verificarPermiso'
 
 const visible = ref<boolean>(true)
+// Solo los perfiles con permiso para subir archivos ven el formulario de carga;
+// los demas (p. ej. Consulta o Jefe) solo ven y descargan la lista.
+const puedeSubir = verificarPermiso('Clases.Subir.Archivos')
 const { params } = useRoute()
 
 const { guardarArchivosClaseMutation, isPending } = useGuardarArchivosClase()
@@ -28,8 +32,13 @@ const cancelar = () => {
     header="Archivos de la capacitacion"
     :modal="true"
   >
-    <FormularioArchivosClase :guardar="guardar" :cancelar="cancelar" :pendiente="isPending" />
-    <TablaArchivosClase :id="+params.id!" class="mt-3" />
+    <FormularioArchivosClase
+      v-if="puedeSubir"
+      :guardar="guardar"
+      :cancelar="cancelar"
+      :pendiente="isPending"
+    />
+    <TablaArchivosClase :id="+params.id!" :class="{ 'mt-3': puedeSubir }" />
   </v-dialog>
 </template>
 
