@@ -3,6 +3,10 @@ import { computed, ref } from 'vue'
 import type { ITecnicoReCat } from '../interfaces/recat'
 import { useDescargaReCat, useFichaReCat, useTecnicosReCat } from '../composables/useReCat'
 import FichaReCat from './FichaReCat.vue'
+import { verificarPermiso } from '@/guards/verificarPermiso'
+
+// Sin este permiso no se muestran las opciones de descarga
+const puedeDescargar = verificarPermiso('ConsultaReCat.Descargar')
 
 const { filtrados, sucursales, texto, sucursal, categoria, isLoading } = useTecnicosReCat()
 const { descargar, descargando } = useDescargaReCat()
@@ -74,7 +78,7 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
             <label for="categoria">Categoría</label>
           </v-floatlabel>
         </div>
-        <div className="col-span-2 col-start-11 row-start-1">
+        <div v-if="puedeDescargar" className="col-span-2 col-start-11 row-start-1">
           <v-button
             icon="pi pi-download"
             :label="`Descargar fichas (${seleccion.length})`"
@@ -96,7 +100,12 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
       </div>
     </template>
 
-    <v-column selectionMode="multiple" headerStyle="width: 3rem" :exportable="false" />
+    <v-column
+      v-if="puedeDescargar"
+      selectionMode="multiple"
+      headerStyle="width: 3rem"
+      :exportable="false"
+    />
     <v-column field="numero" header="Número empleado" sortable />
     <v-column field="nombre" header="Nombre" sortable />
     <v-column field="sucursal" header="Sucursal" sortable />
@@ -145,7 +154,7 @@ const abrir = (t: ITecnicoReCat) => (empleadoId.value = t.id)
       <v-progressspinner />
     </div>
     <FichaReCat v-else :ficha="ficha" />
-    <template #footer>
+    <template v-if="puedeDescargar" #footer>
       <v-button
         icon="pi pi-download"
         label="Descargar PDF"

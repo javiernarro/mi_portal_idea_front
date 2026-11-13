@@ -33,14 +33,8 @@ const severidadBloque = (b: IBloqueReCat) =>
         <div><b>Sucursal:</b> {{ ficha.empleado.sucursal }}</div>
         <div><b>Categoría actual:</b> {{ ficha.empleado.categoriaTexto }}</div>
         <div><b>Próxima categoría:</b> {{ ficha.empleado.siguiente ?? 'Categoría máxima' }}</div>
-        <div class="md:col-span-2">
-          <b>¿Cumple para su próxima categoría?</b>
-          <v-tag
-            class="ml-2"
-            :severity="ficha.cumple ? 'success' : 'danger'"
-            :value="ficha.cumple ? 'CUMPLE' : 'NO CUMPLE'"
-          />
-        </div>
+        <div class="hidden md:block"></div>
+        <div><b>Jefe inmediato:</b> {{ ficha.empleado.jefeInmediato || 'Sin asignar' }}</div>
       </div>
     </v-fieldset>
 

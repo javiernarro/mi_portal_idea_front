@@ -176,6 +176,27 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
     margin: [0, 3, 0, 3] as [number, number, number, number],
     ...extra,
   })
+  // Categoría: valor grande en azul, centrado bajo su etiqueta
+  const categoria = (etiqueta: string, valor: string): TableCell => ({
+    table: {
+      widths: ['auto'],
+      body: [
+        [{ text: etiqueta.toUpperCase(), fontSize: 6.5, color: GRIS }],
+        [
+          {
+            text: valor,
+            bold: true,
+            fontSize: 13,
+            color: AZUL,
+            alignment: 'center',
+            margin: [0, 1, 0, 0] as [number, number, number, number],
+          },
+        ],
+      ],
+    },
+    layout: 'noBorders',
+    margin: [0, 3, 0, 3] as [number, number, number, number],
+  })
 
   return [
     {
@@ -216,9 +237,9 @@ const contenidoFicha = (f: IFichaReCat, primera: boolean): Content[] => {
               [dato('No. de empleado', e.numero), dato('Nombre', e.nombre, { colSpan: 2 }), {}],
               [dato('Puesto', e.cargo, { colSpan: 2 }), {}, dato('Sucursal', e.sucursal)],
               [
-                dato('Categoría actual', e.categoriaTexto, {}, true),
-                dato('Próxima categoría', e.siguiente ?? 'Categoría máxima', {}, true),
-                {},
+                categoria('Categoría actual', e.categoriaTexto),
+                categoria('Próxima categoría', e.siguiente ?? 'Categoría máxima'),
+                dato('Jefe inmediato', e.jefeInmediato || 'Sin asignar'),
               ],
             ],
           },
