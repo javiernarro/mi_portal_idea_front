@@ -7,6 +7,7 @@ export interface IEmpleadoReCat {
   cargo: string
   sucursalId: number | null
   sucursal: string
+  jefeInmediato: string | null
   categoria: CategoriaReCat
   categoriaTexto: string
   siguiente: string | null
