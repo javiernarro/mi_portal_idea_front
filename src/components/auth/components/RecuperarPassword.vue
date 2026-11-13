@@ -24,7 +24,7 @@ const submit = handleSubmit((values) => {
   <v-card :style="{ 'min-width': '480px' }">
     <template #content>
       <div class="flex justify-center flex-col items-center mb-3 mt-3 gap-2">
-        <h4 class="text-[24px]! text-black">Nueva contraseña</h4>
+        <h4 class="text-[24px]! text-black dark:text-zinc-100">Nueva contraseña</h4>
       </div>
 
       <form
