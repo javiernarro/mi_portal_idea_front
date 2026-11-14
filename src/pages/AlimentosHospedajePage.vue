@@ -14,6 +14,7 @@ import {
   usePiso,
   useSemana,
 } from '@/components/alimentosHospedaje/composables/useAlimentosHospedaje'
+import type { IReserva } from '@/components/alimentosHospedaje/interfaces/alimentosHospedaje'
 import {
   DIAS_CORTOS,
   diaSemana,
@@ -41,9 +42,21 @@ const vista = ref<'plano' | 'calendario'>('plano')
 const verReserva = ref(false)
 const verBloqueo = ref(false)
 const verGrupo = ref(false)
+const verEdicion = ref(false)
+const reservaEditar = ref<IReserva | null>(null)
 
-// Noches que se pueden ver: domingo a viernes
-const noches = computed(() => fechas.value.slice(0, 6))
+// Noches de domingo a sabado: en estancias de 2 o 3 semanas se duerme tambien el fin de semana
+const noches = computed(() => fechas.value)
+
+const opcionesCama = computed(() =>
+  camas.value
+    .filter((c) => habitacionPorId.value.get(c.habitacionId)?.tipo !== 'bodega')
+    .map((c) => ({ value: c.id, label: etiquetaCama(c.id) })),
+)
+const editar = (r: IReserva) => {
+  reservaEditar.value = r
+  verEdicion.value = true
+}
 
 const cama = computed(() => camas.value.find((c) => c.id === seleccionada.value))
 const habitacion = computed(() =>
@@ -183,6 +196,7 @@ const vistas = [
               :bloqueo="bloqueoEn(cama, noche)"
               @reservar="verReserva = true"
               @bloquear="verBloqueo = true"
+              @editar="editar"
             />
             <div v-else class="text-sm text-neutral-500 dark:text-zinc-400">
               Selecciona una cama en el plano o en el calendario para ver su detalle.
@@ -202,6 +216,18 @@ const vistas = [
     :entradaHora="piso.configuracion.entradaHora"
     :salidaHora="piso.configuracion.salidaHora"
     :sucursalLocal="piso.configuracion.sucursalLocal"
+  />
+  <FormularioReserva
+    v-if="reservaEditar && piso"
+    v-model:visible="verEdicion"
+    :camaId="reservaEditar.camaId"
+    :etiqueta="etiquetaCama(reservaEditar.camaId)"
+    :semanaInicio="reservaEditar.semanaInicio ?? semanaInicio"
+    :entradaHora="piso.configuracion.entradaHora"
+    :salidaHora="piso.configuracion.salidaHora"
+    :sucursalLocal="piso.configuracion.sucursalLocal"
+    :reserva="reservaEditar"
+    :opcionesCama="opcionesCama"
   />
   <FormularioBloqueo
     v-if="cama && habitacion"

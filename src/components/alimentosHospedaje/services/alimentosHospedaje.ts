@@ -2,8 +2,10 @@ import { api_mi_portal } from '@/api'
 import type {
   IBloqueo,
   IClaseSemana,
+  IEdicionReserva,
   IEmpleadoHuesped,
   IEstancia,
+  IGrupoSemana,
   INuevaReserva,
   INuevoGrupo,
   IPiso,
@@ -50,6 +52,20 @@ export const getParticipantesClase = async (
 
 export const postReserva = async (reserva: INuevaReserva): Promise<IResultadoReserva> => {
   const { data } = await api_mi_portal.post<IResultadoReserva>(`${base}/reservas`, reserva)
+  return data
+}
+
+export const getGruposSemana = async (fecha: string): Promise<IGrupoSemana[]> => {
+  const { data } = await api_mi_portal.get<IGrupoSemana[]>(`${base}/grupos`, { params: { fecha } })
+  return data
+}
+
+/** Solo administrador: cama, fechas, alimentos y notas. */
+export const patchReserva = async (
+  id: number,
+  edicion: IEdicionReserva,
+): Promise<{ id: number; folios: string[]; avisos: string[] }> => {
+  const { data } = await api_mi_portal.patch(`${base}/reservas/${id}`, edicion)
   return data
 }
 

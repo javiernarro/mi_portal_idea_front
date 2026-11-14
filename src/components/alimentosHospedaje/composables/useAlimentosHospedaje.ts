@@ -9,6 +9,7 @@ import {
   getReserva,
   getSemana,
   patchEstado,
+  patchReserva,
   postBloqueo,
   postGrupo,
   postReserva,
@@ -17,6 +18,7 @@ import type {
   EstadoCama,
   IBloqueo,
   ICama,
+  IEdicionReserva,
   IHabitacion,
   INuevaReserva,
   INuevoGrupo,
@@ -24,9 +26,20 @@ import type {
 } from '../interfaces/alimentosHospedaje'
 import { hoyISO, inicioSemana, sumarDias } from '../helpers/fechas'
 
+/** Perfil de la sesion. Editar reservas y pedir alimentos de fin de semana es solo del administrador. */
+const esAdministrador = () => {
+  try {
+    const data = JSON.parse(localStorage.getItem('empleado') || 'null')?.data
+    return data?.perfil?.nombre === 'ADMIN'
+  } catch {
+    return false
+  }
+}
+
 export const usePermisosAH = () => ({
   puedeConsultar: verificarPermiso('AlimentosHospedaje.Consultar'),
   puedeModificar: verificarPermiso('AlimentosHospedaje.Modificar'),
+  esAdmin: esAdministrador(),
 })
 
 /** Muestra el mensaje que manda el servidor (reglas de camas, personal local, etc.). */
@@ -162,6 +175,11 @@ export const useAccionesAH = () => {
     onSuccess: refrescar,
     onError: mostrarError,
   })
+  const editarReserva = useMutation({
+    mutationFn: (p: { id: number; edicion: IEdicionReserva }) => patchReserva(p.id, p.edicion),
+    onSuccess: refrescar,
+    onError: mostrarError,
+  })
   const cambiarEstado = useMutation({
     mutationFn: (p: { id: number; accion: 'checkin' | 'checkout' | 'cancelar'; motivo?: string }) =>
       patchEstado(p.id, p.accion, p.motivo),
@@ -178,5 +196,5 @@ export const useAccionesAH = () => {
     onSuccess: refrescar,
     onError: mostrarError,
   })
-  return { crearReserva, crearGrupo, cambiarEstado, crearBloqueo, quitarBloqueo }
+  return { crearReserva, crearGrupo, editarReserva, cambiarEstado, crearBloqueo, quitarBloqueo }
 }

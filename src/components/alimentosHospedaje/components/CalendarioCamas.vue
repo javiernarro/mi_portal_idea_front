@@ -16,8 +16,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ seleccionar: [camaId: string, noche: string] }>()
 
-// Noches de la semana: domingo a viernes (la noche del sábado no se usa)
-const noches = computed(() => props.fechas.slice(0, 6))
+// Noches de domingo a sabado (en estancias de varias semanas se duerme el fin de semana)
+const noches = computed(() => props.fechas)
 
 const filas = computed(() =>
   props.camas

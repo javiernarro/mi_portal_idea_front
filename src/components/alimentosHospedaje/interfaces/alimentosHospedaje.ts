@@ -109,6 +109,8 @@ export interface IEmpleadoHuesped {
 export interface IEstancia {
   modo: 'SEMANA_COMPLETA' | 'PERSONALIZADA'
   semanaInicio: string
+  /** Semanas consecutivas en semana completa (1 a 3). */
+  semanas?: number
   entradaFecha?: string
   entradaHora?: string
   salidaFecha?: string
@@ -118,10 +120,13 @@ export interface IEstancia {
 export interface INuevaReserva {
   empleadoId: number
   camaId: string
+  /** Para agregar a la persona a la solicitud de un grupo de la semana. */
+  grupoId?: number | null
   estancia: IEstancia
   motivo: Motivo
   detalleMotivo?: string | null
   presetAlimentos: Preset
+  servicios?: IServicio[]
   notas?: string | null
   excepcionLocal?: boolean
 }
@@ -133,15 +138,35 @@ export interface INuevoGrupo {
   motivo: Motivo
   detalleMotivo?: string | null
   presetAlimentos: Preset
+  servicios?: IServicio[]
   notas?: string | null
   excepcionLocal?: boolean
   participantes: { empleadoId: number; camaId: string }[]
 }
 
 export interface IResultadoReserva {
-  grupoId: number | null
-  reservas: { id: number; folio: string; camaId: string; empleadoId: number }[]
+  grupoId: number
+  /** Folio de cada solicitud semanal creada o modificada (SOHA_AAAAMMDD_CURSO, -2, -3...). */
+  folios: string[]
+  reservas: { id: number; camaId: string; empleadoId: number }[]
   avisos: string[]
+}
+
+/** Solo administrador. */
+export interface IEdicionReserva {
+  camaId: string
+  estancia: IEstancia
+  presetAlimentos: Preset
+  servicios?: IServicio[]
+  notas?: string | null
+}
+
+export interface IGrupoSemana {
+  id: number
+  nombre: string
+  motivo: Motivo
+  folio: string
+  personas: number
 }
 
 export interface IClaseSemana {

@@ -20,9 +20,9 @@ const props = defineProps<{
   reserva: IReserva | undefined
   bloqueo: IBloqueo | undefined
 }>()
-const emit = defineEmits<{ reservar: []; bloquear: [] }>()
+const emit = defineEmits<{ reservar: []; bloquear: []; editar: [reserva: IReserva] }>()
 
-const { puedeConsultar, puedeModificar } = usePermisosAH()
+const { puedeConsultar, puedeModificar, esAdmin } = usePermisosAH()
 const { cambiarEstado, quitarBloqueo } = useAccionesAH()
 const { reserva: detalle } = useReserva(() => props.reserva?.id ?? null)
 
@@ -30,6 +30,7 @@ const r = computed(() =>
   detalle.value && detalle.value.id === props.reserva?.id ? detalle.value : props.reserva,
 )
 const motivo = computed(() => MOTIVOS.find((m) => m.value === r.value?.motivo)?.label)
+const folios = computed(() => (r.value?.folio ? r.value.folio.split(', ') : []))
 const alimentos = computed(
   () => PRESETS.find((p) => p.value === r.value?.presetAlimentos)?.label ?? 'Personalizado',
 )
@@ -127,8 +128,7 @@ const quitar = async () => {
         {{ fechaCorta(r.salidaFecha) }}.
       </div>
       <template v-else>
-        <div class="flex items-center gap-2">
-          <span class="font-semibold">{{ r.folio }}</span>
+        <div class="flex flex-wrap items-center gap-2">
           <v-tag
             :value="ESTADOS_RESERVA[r.estado].label"
             :severity="ESTADOS_RESERVA[r.estado].severity"
@@ -136,6 +136,12 @@ const quitar = async () => {
           <v-tag v-if="r.excepcionLocal" value="Excepción local" severity="secondary" />
         </div>
         <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+          <span class="text-neutral-500 dark:text-zinc-400">
+            {{ folios.length > 1 ? 'Solicitudes' : 'Solicitud' }}
+          </span>
+          <span class="font-semibold break-all">
+            <span v-for="f in folios" :key="f" class="block">{{ f }}</span>
+          </span>
           <span class="text-neutral-500 dark:text-zinc-400">Huésped</span>
           <span class="font-medium">{{ r.huespedNombre }} ({{ r.huespedNumero ?? 's/n' }})</span>
           <span class="text-neutral-500 dark:text-zinc-400">Sucursal</span
@@ -179,6 +185,16 @@ const quitar = async () => {
           size="small"
           :loading="cambiarEstado.isPending.value"
           @click="accion('checkout')"
+        />
+        <v-button
+          v-if="esAdmin && puedeConsultar && (r.estado === 'RESERVADA' || r.estado === 'EN_CASA')"
+          label="Modificar"
+          icon="pi pi-pencil"
+          severity="secondary"
+          outlined
+          size="small"
+          :disabled="!detalle || detalle.id !== r.id"
+          @click="emit('editar', r)"
         />
         <v-button
           v-if="r.estado === 'RESERVADA' || r.estado === 'EN_CASA'"

@@ -53,6 +53,13 @@ export const PRESETS: { value: Preset; label: string }[] = [
   { value: 'TODOS', label: 'Todos los tiempos (lunes a viernes)' },
   { value: 'DES_CEN', label: 'Solo desayuno y cena' },
   { value: 'NINGUNO', label: 'Ningún alimento' },
+  { value: 'PERSONALIZADO', label: 'Personalizado (elegir por día)' },
+]
+
+export const TIEMPOS: { value: 'DES' | 'COM' | 'CEN'; label: string }[] = [
+  { value: 'DES', label: 'Desayuno' },
+  { value: 'COM', label: 'Comida' },
+  { value: 'CEN', label: 'Cena' },
 ]
 
 export const TIPO_CAMA: Record<string, string> = {
