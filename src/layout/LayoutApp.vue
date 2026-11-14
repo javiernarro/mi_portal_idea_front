@@ -141,6 +141,12 @@ const menu = computed(() => {
         },
       ],
     },
+    {
+      title: 'Alimentos y Hospedaje',
+      icon: 'pi pi-building',
+      href: '/alimentos-hospedaje',
+      hidden: !verificarPermiso('AlimentosHospedaje.Ver'),
+    },
   ]
 })
 
