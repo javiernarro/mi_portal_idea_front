@@ -3,12 +3,25 @@ import type { IClaseEmpleado } from '@/components/clase/interfaces/clase_emplead
 import type { PropsTabla } from '../interface/propsTabla'
 import { computed, ref } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
-import useModificarMiCurso from '../composables/useModificarMicurso'
+import { pregunta } from '@/helper/mensajes'
 import usePdfsCertificados from '../composables/usePdfsCertificados'
 import { verificarPermiso } from '@/guards/verificarPermiso'
 
 const { misCursos } = defineProps<PropsTabla>()
-const { aceptarComentarios } = useModificarMiCurso()
+
+// Comentarios aceptados SOLO en esta consulta: no se guardan en la base de datos.
+// Cada vez que se vuelve a consultar, hay que aceptarlos de nuevo.
+const aceptados = ref(new Set<number>())
+const tieneComentarios = (x: IClaseEmpleado) => x.comentarios !== null
+const comentariosPendientes = (x: IClaseEmpleado) =>
+  tieneComentarios(x) && !aceptados.value.has(x.id!)
+const puedeDescargar = (x: IClaseEmpleado) =>
+  !!x.aprobado && !!x.clase?.calificada && !comentariosPendientes(x)
+const aceptarComentarios = (x: IClaseEmpleado) => {
+  pregunta('Comentarios del instructor', `${x.comentarios}`).then(() => {
+    aceptados.value = new Set(aceptados.value).add(x.id!)
+  })
+}
 const { descargarCertificados } = usePdfsCertificados()
 
 const certificadosSeleccionados = ref<IClaseEmpleado[]>([])
@@ -16,12 +29,7 @@ const certificadosSeleccionados = ref<IClaseEmpleado[]>([])
 const descargar = () => {
   const certificados = certificadosSeleccionados.value
     .map((x) => {
-      if (
-        x.aprobado &&
-        x.clase!.calificada &&
-        ((x.comentarios === null && !x.aceptarComentarios) ||
-          (x.comentarios !== null && x.aceptarComentarios))
-      ) {
+      if (puedeDescargar(x)) {
         return x.id
       }
     })
@@ -30,7 +38,7 @@ const descargar = () => {
 }
 
 const selectableItems = computed(() => {
-  return misCursos?.filter((item) => item.aprobado && item.clase!.calificada) || []
+  return misCursos?.filter((item) => puedeDescargar(item)) || []
 })
 
 const allSelected = computed(() => {
@@ -160,12 +168,7 @@ const filters = ref({
               name: !empleado ? 'certificado-pdf' : 'certificado-empleado-pdf',
               params: { id: data.id },
             }"
-            v-if="
-              data.aprobado &&
-              data.clase!.calificada &&
-              ((data.comentarios === null && !data.aceptarComentarios) ||
-                (data.comentarios !== null && data.aceptarComentarios))
-            "
+            v-if="puedeDescargar(data)"
           >
             <v-button icon="pi pi-file-pdf" severity="danger" size="small" />
           </router-link>
@@ -173,7 +176,7 @@ const filters = ref({
             icon="pi pi-check"
             size="small"
             @click="aceptarComentarios(data)"
-            v-if="!data.aceptarComentarios && data.comentarios !== null && data.clase?.calificada"
+            v-if="comentariosPendientes(data) && data.clase?.calificada"
           />
         </div>
       </template>
@@ -190,13 +193,7 @@ const filters = ref({
       </template>
       <template #body="{ data }: { data: IClaseEmpleado }">
         <v-checkbox
-          v-if="
-            data.aprobado &&
-            data.clase!.calificada &&
-            ((data.comentarios === null && !data.aceptarComentarios) ||
-              (data.comentarios !== null && data.aceptarComentarios)) &&
-            verificarPermiso('Empleados.Descargar.DC3')
-          "
+          v-if="puedeDescargar(data) && verificarPermiso('Empleados.Descargar.DC3')"
           :modelValue="isSelected(data)"
           @update:modelValue="toggleSelection(data)"
           binary

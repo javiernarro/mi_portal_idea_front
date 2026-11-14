@@ -9,6 +9,7 @@ import router from '@/router'
 import type { IAuthResponse } from '../interfaces/authResponse'
 import { computed } from 'vue'
 import { pregunta } from '@/helper/mensajes'
+import { aplicarTemaDelUsuario, restablecerTemaClaro } from '@/composables/useModoOscuro'
 
 const useAuth = () => {
   const authStore = useAuthStore()
@@ -36,6 +37,7 @@ const useAuth = () => {
         life: 3000,
       })
       localStorage.setItem('empleado', JSON.stringify(payload))
+      aplicarTemaDelUsuario()
       router.push('/home')
     },
     onError: (error: AxiosError) => {
@@ -53,6 +55,7 @@ const useAuth = () => {
   const logout = () => {
     pregunta('¿Deseas salir del sistema?', '', 'Aceptar').then(() => {
       localStorage.removeItem('empleado')
+      restablecerTemaClaro()
       authStore.setAutenticado(false)
       router.push('/')
     })

@@ -37,26 +37,29 @@ const estiloEstatus = (estatus?: string) => {
   if (e === 'finalizada')
     return {
       severity: 'success',
-      borderClass: 'border-emerald-200 hover:border-emerald-300',
-      bgClass: 'bg-emerald-50/70',
-      headerBg: 'bg-emerald-100/90 text-emerald-900',
+      borderClass:
+        'border-emerald-200 hover:border-emerald-300 dark:border-emerald-800 dark:hover:border-emerald-600',
+      bgClass: 'bg-emerald-50/70 dark:bg-emerald-950/50',
+      headerBg: 'bg-emerald-100/90 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-100',
       label: 'Finalizada',
       dotColor: 'bg-emerald-500',
     }
   if (e === 'en curso')
     return {
       severity: 'warn',
-      borderClass: 'border-amber-200 hover:border-amber-300',
-      bgClass: 'bg-amber-50/70',
-      headerBg: 'bg-amber-100/90 text-amber-900',
+      borderClass:
+        'border-amber-200 hover:border-amber-300 dark:border-amber-800 dark:hover:border-amber-600',
+      bgClass: 'bg-amber-50/70 dark:bg-amber-950/50',
+      headerBg: 'bg-amber-100/90 text-amber-900 dark:bg-amber-900/60 dark:text-amber-100',
       label: 'En curso',
       dotColor: 'bg-amber-500',
     }
   return {
     severity: 'info',
-    borderClass: 'border-blue-200 hover:border-blue-300',
-    bgClass: 'bg-blue-50/70',
-    headerBg: 'bg-blue-100/90 text-blue-900',
+    borderClass:
+      'border-blue-200 hover:border-blue-300 dark:border-blue-800 dark:hover:border-blue-600',
+    bgClass: 'bg-blue-50/70 dark:bg-blue-950/50',
+    headerBg: 'bg-blue-100/90 text-blue-900 dark:bg-blue-900/60 dark:text-blue-100',
     label: 'Pendiente',
     dotColor: 'bg-blue-500',
   }
@@ -308,14 +311,16 @@ const semanas = computed(() => {
   <div class="w-full mx-auto font-sans relative">
     <div
       v-if="isLoading"
-      class="flex flex-col items-center justify-center absolute inset-0 z-50 bg-white/75 backdrop-blur-xs rounded-xl transition-all"
+      class="flex flex-col items-center justify-center absolute inset-0 z-50 bg-white/75 dark:bg-zinc-900/75 backdrop-blur-xs rounded-xl transition-all"
     >
       <v-progressspinner style="width: 44px; height: 44px" strokeWidth="4" />
-      <span class="text-sm font-semibold text-neutral-700 mt-2">Cargando clases...</span>
+      <span class="text-sm font-semibold text-neutral-700 dark:text-zinc-300 mt-2"
+        >Cargando clases...</span
+      >
     </div>
 
     <header
-      class="flex flex-wrap items-center justify-between gap-3 bg-white border border-neutral-200/90 shadow-2xs rounded-xl px-4 py-3 mb-2"
+      class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-zinc-900 border border-neutral-200/90 dark:border-zinc-700 shadow-2xs rounded-xl px-4 py-3 mb-2"
     >
       <div class="flex items-center gap-1.5">
         <v-button
@@ -347,23 +352,31 @@ const semanas = computed(() => {
           aria-label="Mes siguiente"
           v-tooltip.top="'Mes siguiente'"
         />
-        <h2 class="text-lg font-bold capitalize text-neutral-800 tracking-tight ml-2">
+        <h2
+          class="text-lg font-bold capitalize text-neutral-800 dark:text-zinc-100 tracking-tight ml-2"
+        >
           {{ monthTitle }}
         </h2>
       </div>
 
       <div
-        class="flex items-center gap-3 bg-neutral-50 px-3 py-1.5 rounded-lg border border-neutral-200/70"
+        class="flex items-center gap-3 bg-neutral-50 dark:bg-zinc-800 px-3 py-1.5 rounded-lg border border-neutral-200/70 dark:border-zinc-700"
       >
-        <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
+        <div
+          class="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-zinc-300"
+        >
           <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-2xs"></span>
           <span>Pendiente</span>
         </div>
-        <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
+        <div
+          class="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-zinc-300"
+        >
           <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-2xs"></span>
           <span>En curso</span>
         </div>
-        <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
+        <div
+          class="flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-zinc-300"
+        >
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-2xs"></span>
           <span>Finalizada</span>
         </div>
@@ -371,7 +384,13 @@ const semanas = computed(() => {
 
       <div class="flex items-center gap-2">
         <router-link :to="{ name: 'enlazar-clases' }" v-if="verificarPermiso('Clases.Enlazar')">
-          <v-button icon="pi pi-link" label="Enlazar clases" size="small" severity="secondary" outlined />
+          <v-button
+            icon="pi pi-link"
+            label="Enlazar clases"
+            size="small"
+            severity="secondary"
+            outlined
+          />
         </router-link>
         <router-link :to="{ name: 'crear-clase' }" v-if="verificarPermiso('Clases.Crear')">
           <v-button icon="pi pi-plus" label="Crear clase" size="small" />
@@ -380,14 +399,16 @@ const semanas = computed(() => {
     </header>
 
     <div
-      class="grid grid-cols-7 text-center border border-neutral-200 bg-neutral-50/90 rounded-t-xl overflow-hidden"
+      class="grid grid-cols-7 text-center border border-neutral-200 dark:border-zinc-700 bg-neutral-50/90 dark:bg-zinc-800/90 rounded-t-xl overflow-hidden"
     >
       <div
         v-for="(d, index) in weekdays"
         :key="d"
         :class="[
-          'py-2.5 text-xs font-semibold uppercase tracking-wider text-neutral-600',
-          index >= 5 ? 'text-neutral-400 bg-neutral-100/40' : '',
+          'py-2.5 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-zinc-400',
+          index >= 5
+            ? 'text-neutral-400 dark:text-zinc-500 bg-neutral-100/40 dark:bg-zinc-800/40'
+            : '',
         ]"
       >
         {{ d }}
@@ -395,24 +416,24 @@ const semanas = computed(() => {
     </div>
 
     <div
-      class="border border-neutral-200 rounded-b-xl overflow-hidden shadow-2xs divide-y divide-neutral-200"
+      class="border border-neutral-200 dark:border-zinc-700 rounded-b-xl overflow-hidden shadow-2xs divide-y divide-neutral-200 dark:divide-zinc-700"
     >
       <div
         v-for="semana in semanas"
         :key="semana.key"
-        class="relative flex flex-col min-h-[135px] bg-white transition-colors"
+        class="relative flex flex-col min-h-[135px] bg-white dark:bg-zinc-900 transition-colors"
       >
         <!-- Fondo de cada día -->
         <div
-          class="grid grid-cols-7 absolute inset-0 pointer-events-none divide-x divide-neutral-200/80"
+          class="grid grid-cols-7 absolute inset-0 pointer-events-none divide-x divide-neutral-200/80 dark:divide-zinc-700"
         >
           <div
             v-for="day in semana.days"
             :key="day.key"
             :class="[
-              day.otherMonth ? 'bg-neutral-50/50' : 'bg-white',
+              day.otherMonth ? 'bg-neutral-50/50 dark:bg-zinc-950/60' : 'bg-white dark:bg-zinc-900',
               day.isToday ? 'bg-primary-50/20' : '',
-              day.isPast && !day.otherMonth ? 'bg-neutral-50/30' : '',
+              day.isPast && !day.otherMonth ? 'bg-neutral-50/30 dark:bg-zinc-950/40' : '',
             ]"
           ></div>
         </div>
@@ -435,7 +456,9 @@ const semanas = computed(() => {
               v-else
               :class="[
                 'text-xs font-semibold px-1 py-0.5',
-                day.otherMonth ? 'text-neutral-400' : 'text-neutral-700',
+                day.otherMonth
+                  ? 'text-neutral-400 dark:text-zinc-500'
+                  : 'text-neutral-700 dark:text-zinc-300',
               ]"
             >
               {{ day.date.getDate() }}
@@ -461,7 +484,7 @@ const semanas = computed(() => {
           >
             <div
               :class="[
-                'flex items-center justify-between px-2 py-1 text-[10px] font-semibold border-b border-black/5 gap-1',
+                'flex items-center justify-between px-2 py-1 text-[10px] font-semibold border-b border-black/5 dark:border-white/10 gap-1',
                 estiloEstatus(seg.clase.estatus).headerBg,
               ]"
             >
@@ -470,7 +493,9 @@ const semanas = computed(() => {
                 <span
                   v-if="seg.clase.enlazada"
                   class="inline-flex items-center text-primary-700"
-                  v-tooltip.top="`Enlazada (Padre #${seg.clase.padres?.[0]?.padreId || seg.clase.id})`"
+                  v-tooltip.top="
+                    `Enlazada (Padre #${seg.clase.padres?.[0]?.padreId || seg.clase.id})`
+                  "
                 >
                   <i class="pi pi-link text-[9px]"></i>
                 </span>

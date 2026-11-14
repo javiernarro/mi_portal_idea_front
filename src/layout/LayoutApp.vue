@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import useAuth from '@/components/auth/composables/useAuth'
 import { computed, ref } from 'vue'
+import BotonModoOscuro from './BotonModoOscuro.vue'
+import useModoOscuro from '@/composables/useModoOscuro'
 import {
   verificarPermiso,
   verificarSiMostrarCapacitacion,
@@ -9,6 +11,7 @@ import {
 
 const { autenticado, logout } = useAuth()
 const collapsed = ref<boolean>(false)
+const { oscuro } = useModoOscuro()
 
 const menu = computed(() => {
   return [
@@ -130,6 +133,12 @@ const menu = computed(() => {
           icon: 'pi pi-briefcase',
           hidden: !verificarPermiso('Requerimientos.Ver'),
         },
+        {
+          href: '/consulta-recat',
+          title: 'Consulta Re-Cat',
+          icon: 'pi pi-search',
+          hidden: !verificarPermiso('ConsultaReCat.Ver'),
+        },
       ],
     },
   ]
@@ -143,7 +152,7 @@ const onToggleCollapse = () => {
 <template>
   <sidebar-menu
     :menu="menu"
-    theme="white-theme"
+    :theme="oscuro ? '' : 'white-theme'"
     :hideToggle="false"
     v-if="autenticado"
     @update:collapsed="onToggleCollapse"
@@ -151,10 +160,13 @@ const onToggleCollapse = () => {
     <!-- <sidebar-menu :menu="menu" :hideToggle="true" v-if="autenticado"> -->
     <template v-slot:header>
       <div class="flex justify-center">
-        <img src="/logo.webp" alt="logotipo" class="w-[150px]!" />
+        <img src="/logo.webp" alt="logotipo" class="logo-portal w-[150px]!" />
       </div>
     </template>
     <template v-slot:footer>
+      <div v-if="!collapsed" class="px-2 pt-2 flex justify-center items-center">
+        <BotonModoOscuro />
+      </div>
       <div class="p-2 flex! justify-center items-center">
         <v-button
           :label="collapsed ? '' : 'Salir'"

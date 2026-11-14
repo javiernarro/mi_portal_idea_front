@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 
+/* Modo oscuro: Tailwind usa la clase .app-dark en <html> (la pone useModoOscuro) */
+@custom-variant dark (&:where(.app-dark, .app-dark *));
+
 body {
   background-color: rgb(221, 221, 221);
   margin: 0;
@@ -69,4 +72,41 @@ body {
   --vsm-item-padding: 10px 15px;
   --vsm-icon-height: 35px;
   --vsm-icon-width: 35px;
+}
+
+/* ===== Modo oscuro (solo interfaz) ===== */
+.app-dark {
+  color-scheme: dark;
+}
+
+.app-dark body {
+  background-color: #111113;
+  color: #e4e4e7;
+}
+
+.app-dark .v-sidebar-menu {
+  --vsm-base-bg: #18181b;
+  --vsm-icon-bg: #27272a;
+  --vsm-toggle-btn-bg: #27272a;
+  --vsm-dropdown-bg: #1f1f23 !important;
+  --vsm-item-hover-bg: rgba(255, 255, 255, 0.08) !important;
+  --vsm-item-active-bg: rgba(255, 255, 255, 0.12);
+  --vsm-primary-color: #3d54b9 !important;
+  border-right: 1px solid #27272a;
+}
+
+/* Logo en blanco para que se lea sobre el menú oscuro */
+.app-dark .logo-portal {
+  filter: brightness(0) invert(1);
+}
+
+/* Alertas (SweetAlert2) */
+.app-dark .swal2-popup {
+  background: #18181b;
+  color: #e4e4e7;
+}
+
+.app-dark .swal2-title,
+.app-dark .swal2-html-container {
+  color: #e4e4e7;
 }
