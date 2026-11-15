@@ -55,8 +55,13 @@ watch(
         <v-skeleton height="240px" />
       </div>
       <template v-else>
-        <div class="flex justify-start mb-3">
-          <img src="/logo.webp" alt="KOMATSU" class="h-16 w-auto object-contain" />
+        <div class="flex items-center justify-between gap-4 mb-3">
+          <img
+            src="/reglamento/mi-portal-idea.png"
+            alt="Mi Portal IDEA"
+            class="h-12 w-auto object-contain"
+          />
+          <img src="/reglamento/komatsu.png" alt="KOMATSU" class="h-7 w-auto object-contain" />
         </div>
         <div class="font-bold text-center mb-3">{{ reglamento.titulo }}</div>
         <p class="font-semibold mb-3">{{ reglamento.introduccion }}</p>
@@ -66,7 +71,15 @@ watch(
         </ol>
         <p v-for="(c, i) in reglamento.cierre" :key="'c' + i" class="font-semibold mt-3">{{ c }}</p>
         <div class="mt-5 text-center leading-6">
-          <div v-for="(f, i) in reglamento.firma" :key="'f' + i">{{ f }}</div>
+          <template v-for="(f, i) in reglamento.firma" :key="'f' + i">
+            <div>{{ f }}</div>
+            <img
+              v-if="i === 0"
+              src="/reglamento/firma.png"
+              alt="Firma"
+              class="h-16 w-auto object-contain mx-auto my-1"
+            />
+          </template>
         </div>
       </template>
     </div>
