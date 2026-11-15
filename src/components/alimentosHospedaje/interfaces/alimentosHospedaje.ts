@@ -243,6 +243,10 @@ export interface ICaseta {
   lat: number | null
   lng: number | null
   radio: number
+  /** El QR impreso vence 4 meses después de generarse (AAAA-MM-DD). */
+  vence: string | null
+  vencido: boolean
+  diasRestantes: number | null
   url: string
 }
 

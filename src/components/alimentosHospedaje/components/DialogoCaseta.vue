@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { mensajeOk, pregunta } from '@/helper/mensajes'
 import type { ICaseta } from '../interfaces/alimentosHospedaje'
 import { getCaseta, putCaseta } from '../services/alimentosHospedaje'
@@ -23,6 +23,17 @@ watch(
   },
   { immediate: true },
 )
+
+/** Vigencia del QR impreso: verde vigente, amarillo si faltan 15 días o menos, rojo vencido. */
+const estadoQr = computed(() => {
+  const c = caseta.value
+  if (!c?.vence) return { texto: '', severidad: 'secondary' }
+  const [a, m, d] = c.vence.split('-')
+  const fecha = `${d}/${m}/${a}`
+  if (c.vencido) return { texto: `Vencido desde ${fecha}`, severidad: 'danger' }
+  if ((c.diasRestantes ?? 99) <= 15) return { texto: `Vence el ${fecha}`, severidad: 'warn' }
+  return { texto: `Vigente hasta ${fecha}`, severidad: 'success' }
+})
 
 /** Acepta lo que copia Google Maps al hacer clic derecho: "25.4232, -100.9737". */
 const leerCoordenadas = () => {
@@ -67,6 +78,12 @@ const guardar = async (nuevoCodigo = false) => {
         <label>Radio permitido (metros)</label>
         <v-inputnumber fluid v-model="radio" :min="50" :max="500" suffix=" m" />
       </div>
+      <div v-if="caseta?.vence" class="flex items-center gap-2 text-sm">
+        <v-tag :value="estadoQr.texto" :severity="estadoQr.severidad" />
+        <span class="text-neutral-600 dark:text-zinc-300">
+          El QR vence cada 4 meses. Antes de esa fecha usa "QR nuevo" e imprímelo para Caseta.
+        </span>
+      </div>
     </div>
 
     <template #footer>
@@ -84,7 +101,7 @@ const guardar = async (nuevoCodigo = false) => {
         severity="secondary"
         outlined
         :disabled="caseta?.lat == null"
-        @click="caseta && pdfQrCaseta(caseta.url)"
+        @click="caseta && pdfQrCaseta(caseta.url, caseta.vence)"
       />
       <v-button
         label="Guardar"

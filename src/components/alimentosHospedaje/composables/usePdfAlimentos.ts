@@ -202,7 +202,7 @@ export const pdfFueraServicio = (r: IFueraServicio) => {
 }
 
 /** Hoja para imprimir y colocar en Caseta: un solo QR para llegada y salida. */
-export const pdfQrCaseta = (url: string) => {
+export const pdfQrCaseta = (url: string, vence?: string | null) => {
   const doc: TDocumentDefinitions = {
     pageSize: 'LETTER',
     pageMargins: [48, 60, 48, 48],
@@ -234,6 +234,9 @@ export const pdfQrCaseta = (url: string) => {
         fontSize: 10,
         margin: [0, 24, 0, 0],
       },
+      ...(vence
+        ? [{ text: `Vigente hasta el ${fechaLarga(vence)}`, alignment: 'center' as const, color: GRIS, fontSize: 10, margin: [0, 6, 0, 0] as [number, number, number, number] }]
+        : []),
     ],
   }
   pdfMake.createPdf(doc).download('QR_CASETA_HOSPEDAJE.pdf')
