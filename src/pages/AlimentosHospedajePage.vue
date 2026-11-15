@@ -8,6 +8,8 @@ import LeyendaEstados from '@/components/alimentosHospedaje/components/LeyendaEs
 import FormularioReserva from '@/components/alimentosHospedaje/components/FormularioReserva.vue'
 import FormularioBloqueo from '@/components/alimentosHospedaje/components/FormularioBloqueo.vue'
 import FormularioGrupo from '@/components/alimentosHospedaje/components/FormularioGrupo.vue'
+import PanelSolicitudes from '@/components/alimentosHospedaje/components/PanelSolicitudes.vue'
+import DialogoCaseta from '@/components/alimentosHospedaje/components/DialogoCaseta.vue'
 import {
   useEstadoCamas,
   usePermisosAH,
@@ -22,7 +24,8 @@ import {
   sumarDias,
 } from '@/components/alimentosHospedaje/helpers/fechas'
 
-const { puedeModificar } = usePermisosAH()
+const { puedeModificar, puedeConsultar, esAdmin } = usePermisosAH()
+const verCaseta = ref(false)
 const { piso, habitaciones, camas, habitacionPorId, camasDe, etiquetaCama, isLoading } = usePiso()
 const {
   semanaInicio,
@@ -38,7 +41,7 @@ const {
 const { estado, reservaEn, bloqueoEn } = useEstadoCamas(camas, habitacionPorId, reservas, bloqueos)
 
 const seleccionada = ref<string | null>(null)
-const vista = ref<'plano' | 'calendario'>('plano')
+const vista = ref<'plano' | 'calendario' | 'solicitudes'>('plano')
 const verReserva = ref(false)
 const verBloqueo = ref(false)
 const verGrupo = ref(false)
@@ -80,6 +83,7 @@ const resumen = computed(() => {
 const vistas = [
   { value: 'plano', label: 'Plano' },
   { value: 'calendario', label: 'Calendario' },
+  ...(puedeConsultar ? [{ value: 'solicitudes', label: 'Solicitudes' }] : []),
 ]
 </script>
 
@@ -127,6 +131,15 @@ const vistas = [
               size="small"
             />
             <v-button
+              v-if="esAdmin && puedeModificar"
+              label="QR de Caseta"
+              icon="pi pi-qrcode"
+              size="small"
+              severity="secondary"
+              outlined
+              @click="verCaseta = true"
+            />
+            <v-button
               v-if="puedeModificar"
               label="Reserva de grupo"
               icon="pi pi-users"
@@ -136,7 +149,7 @@ const vistas = [
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
+        <div v-if="vista !== 'solicitudes'" class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-neutral-600 dark:text-zinc-300">Noche:</span>
           <v-button
             v-for="n in noches"
@@ -154,7 +167,9 @@ const vistas = [
           </span>
         </div>
 
-        <div v-if="isLoading" class="grid grid-cols-7 gap-2">
+        <PanelSolicitudes v-if="vista === 'solicitudes'" :semanaInicio="semanaInicio" />
+
+        <div v-else-if="isLoading" class="grid grid-cols-7 gap-2">
           <v-skeleton v-for="i in 14" :key="i" height="96px" />
         </div>
 
@@ -229,6 +244,7 @@ const vistas = [
     :reserva="reservaEditar"
     :opcionesCama="opcionesCama"
   />
+  <DialogoCaseta v-if="verCaseta" v-model:visible="verCaseta" />
   <FormularioBloqueo
     v-if="cama && habitacion"
     v-model:visible="verBloqueo"

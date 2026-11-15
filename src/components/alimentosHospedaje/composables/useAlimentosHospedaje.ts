@@ -163,6 +163,7 @@ export const useAccionesAH = () => {
   const refrescar = () => {
     queryClient.invalidateQueries({ queryKey: ['ahSemana'] })
     queryClient.invalidateQueries({ queryKey: ['ahReserva'] })
+    queryClient.invalidateQueries({ queryKey: ['ahSolicitudes'] })
   }
 
   const crearReserva = useMutation({

@@ -38,7 +38,8 @@ const useAuth = () => {
       })
       localStorage.setItem('empleado', JSON.stringify(payload))
       aplicarTemaDelUsuario()
-      router.push('/home')
+      // Si llegó escaneando el QR de Caseta, vuelve a Mi hospedaje
+      router.push(sessionStorage.getItem('ah-caseta') ? '/mi-hospedaje' : '/home')
     },
     onError: (error: AxiosError) => {
       const data = error.response?.data as IErrors

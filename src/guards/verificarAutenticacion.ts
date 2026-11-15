@@ -21,6 +21,9 @@ export const verificarAutenticacion = async (
     }
   } else {
     if (!isAutenticated && to.name !== 'auth') {
+      // QR de Caseta sin sesion: se guarda el codigo para volver a Mi hospedaje despues de entrar
+      if (to.path === '/mi-hospedaje' && typeof to.query.caseta === 'string')
+        sessionStorage.setItem('ah-caseta', to.query.caseta)
       next('/')
     } else if (isAutenticated && to.name === 'auth') {
       next('/home')

@@ -51,6 +51,7 @@ const estancia = ref<FormEstancia>(
 )
 const notas = ref('')
 const excepcionLocal = ref(false)
+const copiaJefe = ref(false)
 
 watch(
   visible,
@@ -59,6 +60,7 @@ watch(
     empleado.value = null
     texto.value = ''
     excepcionLocal.value = false
+    copiaJefe.value = false
     if (props.reserva) {
       camaId.value = props.reserva.camaId
       estancia.value = estanciaDeReserva(props.reserva)
@@ -153,6 +155,7 @@ const guardar = async () => {
       servicios,
       notas: notas.value || null,
       excepcionLocal: excepcionLocal.value,
+      copiaJefe: copiaJefe.value,
     })
     .catch(() => null)
   if (!r) return
@@ -264,6 +267,11 @@ const guardar = async () => {
           :esAdmin="esAdmin"
           :entradaFija="reserva?.estado === 'EN_CASA'"
         />
+      </div>
+
+      <div v-if="!editando && !grupoId" class="md:col-span-2 flex items-center gap-2">
+        <v-toggleswitch v-model="copiaJefe" inputId="copiaJefeR" />
+        <label for="copiaJefeR">Copia del correo a mi jefe</label>
       </div>
 
       <div class="md:col-span-2">

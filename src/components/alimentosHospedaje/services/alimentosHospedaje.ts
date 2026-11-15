@@ -1,6 +1,12 @@
 import { api_mi_portal } from '@/api'
 import type {
   IBloqueo,
+  ICaseta,
+  IFueraServicio,
+  IMiReserva,
+  IServicio,
+  ISolicitudDetalle,
+  ISolicitudResumen,
   IClaseSemana,
   IEdicionReserva,
   IEmpleadoHuesped,
@@ -108,5 +114,101 @@ export const postBloqueo = async (
 
 export const deleteBloqueo = async (id: number) => {
   const { data } = await api_mi_portal.delete(`${base}/bloqueos/${id}`)
+  return data
+}
+
+// ---------- Solicitudes, comensales, fuera de servicio y Caseta ----------
+
+export const getSolicitudes = async (fecha: string): Promise<ISolicitudResumen[]> => {
+  const { data } = await api_mi_portal.get<ISolicitudResumen[]>(`${base}/solicitudes`, {
+    params: { fecha },
+  })
+  return data
+}
+
+export const getSolicitud = async (id: number): Promise<ISolicitudDetalle> => {
+  const { data } = await api_mi_portal.get<ISolicitudDetalle>(`${base}/solicitudes/${id}`)
+  return data
+}
+
+/** Descarga un archivo del servidor con el nombre que manda (el folio). */
+const descargar = async (url: string, params?: Record<string, string>) => {
+  const r = await api_mi_portal.get(url, { params, responseType: 'blob' })
+  if (!r) return
+  const nombre =
+    /filename="?([^"]+)"?/.exec(r.headers['content-disposition'] ?? '')?.[1] ?? 'archivo.xlsx'
+  const liga = document.createElement('a')
+  liga.href = URL.createObjectURL(r.data as Blob)
+  liga.download = nombre
+  liga.click()
+  URL.revokeObjectURL(liga.href)
+}
+
+export const descargarExcelSolicitud = (id: number) => descargar(`${base}/solicitudes/${id}/excel`)
+
+export const descargarExcelFueraServicio = (fecha: string) =>
+  descargar(`${base}/fuera-de-servicio/excel`, { fecha })
+
+export const getFueraServicio = async (fecha: string): Promise<IFueraServicio> => {
+  const { data } = await api_mi_portal.get<IFueraServicio>(`${base}/fuera-de-servicio`, {
+    params: { fecha },
+  })
+  return data
+}
+
+export const postComensal = async (
+  solicitudId: number,
+  comensal: { empleadoId: number; servicios: IServicio[] },
+): Promise<{ id: number; folios: string[] }> => {
+  const { data } = await api_mi_portal.post(
+    `${base}/solicitudes/${solicitudId}/comensales`,
+    comensal,
+  )
+  return data
+}
+
+export const putComensal = async (
+  id: number,
+  servicios: IServicio[],
+): Promise<{ id: number; folios: string[] }> => {
+  const { data } = await api_mi_portal.put(`${base}/comensales/${id}`, { servicios })
+  return data
+}
+
+export const deleteComensal = async (id: number): Promise<{ id: number; folios: string[] }> => {
+  const { data } = await api_mi_portal.delete(`${base}/comensales/${id}`)
+  return data
+}
+
+export const getCaseta = async (): Promise<ICaseta> => {
+  const { data } = await api_mi_portal.get<ICaseta>(`${base}/caseta`)
+  return data
+}
+
+export const putCaseta = async (caseta: {
+  lat: number
+  lng: number
+  radio: number
+  nuevoCodigo?: boolean
+}): Promise<ICaseta> => {
+  const { data } = await api_mi_portal.put<ICaseta>(`${base}/caseta`, caseta)
+  return data
+}
+
+// ---------- Mi hospedaje (huésped) ----------
+
+export const getMiHospedaje = async (): Promise<IMiReserva[]> => {
+  const { data } = await api_mi_portal.get<IMiReserva[]>('/mi-hospedaje')
+  return data
+}
+
+export const postRegistroCaseta = async (registro: {
+  codigo: string
+  accion: 'llegada' | 'salida'
+  lat: number
+  lng: number
+  precision: number
+}): Promise<{ id: number; estado: string }> => {
+  const { data } = await api_mi_portal.post('/mi-hospedaje/registro', registro)
   return data
 }

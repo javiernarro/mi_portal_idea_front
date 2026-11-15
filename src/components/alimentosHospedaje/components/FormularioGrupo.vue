@@ -47,6 +47,8 @@ const formEstancia = ref<FormEstancia>(
   estanciaInicial(props.semanaInicio, props.entradaHora, props.salidaHora),
 )
 const incluirVip = ref(false)
+const copiaJefe = ref(false)
+const copiaInstructores = ref(false)
 const filas = ref<Fila[]>([])
 const omitidos = ref<string[]>([])
 const texto = ref<string | IEmpleadoHuesped>('')
@@ -61,6 +63,8 @@ watch(visible, async (v) => {
   detalleMotivo.value = ''
   formEstancia.value = estanciaInicial(props.semanaInicio, props.entradaHora, props.salidaHora)
   incluirVip.value = false
+  copiaJefe.value = false
+  copiaInstructores.value = false
   filas.value = []
   omitidos.value = []
   clases.value = (await getClasesSemana(props.semanaInicio).catch(() => [])) ?? []
@@ -152,6 +156,8 @@ const guardar = async () => {
       presetAlimentos: formEstancia.value.preset,
       servicios:
         formEstancia.value.preset === 'PERSONALIZADO' ? formEstancia.value.servicios : undefined,
+      copiaJefe: copiaJefe.value,
+      copiaInstructores: copiaInstructores.value,
       participantes: filas.value.map((f) => ({ empleadoId: f.empleado.id, camaId: f.camaId! })),
     })
     .catch(() => null)
@@ -220,6 +226,21 @@ const guardar = async () => {
 
       <div class="md:col-span-2">
         <CamposEstancia v-model="formEstancia" :semanaInicio="semanaInicio" :esAdmin="esAdmin" />
+      </div>
+
+      <div class="md:col-span-2 flex flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <v-toggleswitch
+            v-model="copiaInstructores"
+            inputId="copiaInstructores"
+            :disabled="!claseId"
+          />
+          <label for="copiaInstructores">Copia del correo a los instructores</label>
+        </div>
+        <div class="flex items-center gap-2">
+          <v-toggleswitch v-model="copiaJefe" inputId="copiaJefe" />
+          <label for="copiaJefe">Copia del correo a mi jefe</label>
+        </div>
       </div>
 
       <div class="md:col-span-2">

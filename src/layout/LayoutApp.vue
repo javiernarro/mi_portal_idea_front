@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useAuth from '@/components/auth/composables/useAuth'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { getMiHospedaje } from '@/components/alimentosHospedaje/services/alimentosHospedaje'
 import BotonModoOscuro from './BotonModoOscuro.vue'
 import useModoOscuro from '@/composables/useModoOscuro'
 import {
@@ -10,8 +11,19 @@ import {
 } from '@/guards/verificarPermiso'
 
 const { autenticado, logout } = useAuth()
-const collapsed = ref<boolean>(false)
+// En el teléfono (p. ej. al escanear el QR de Caseta) el menú inicia cerrado para no tapar la pantalla
+const collapsed = ref<boolean>(window.innerWidth < 768)
 const { oscuro } = useModoOscuro()
+
+// "Mi hospedaje" solo aparece a quien tiene hospedaje vigente o próximo
+const tieneHospedaje = ref(false)
+watch(
+  autenticado,
+  async (v) => {
+    tieneHospedaje.value = v ? !!(await getMiHospedaje().catch(() => []))?.length : false
+  },
+  { immediate: true },
+)
 
 const menu = computed(() => {
   return [
@@ -142,6 +154,12 @@ const menu = computed(() => {
       ],
     },
     {
+      title: 'Mi hospedaje',
+      icon: 'pi pi-key',
+      href: '/mi-hospedaje',
+      hidden: !tieneHospedaje.value,
+    },
+    {
       title: 'Alimentos y Hospedaje',
       icon: 'pi pi-building',
       href: '/alimentos-hospedaje',
@@ -160,6 +178,7 @@ const onToggleCollapse = () => {
     :menu="menu"
     :theme="oscuro ? '' : 'white-theme'"
     :hideToggle="false"
+    :collapsed="collapsed"
     v-if="autenticado"
     @update:collapsed="onToggleCollapse"
   >

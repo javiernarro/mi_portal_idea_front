@@ -129,6 +129,7 @@ export interface INuevaReserva {
   servicios?: IServicio[]
   notas?: string | null
   excepcionLocal?: boolean
+  copiaJefe?: boolean
 }
 
 export interface INuevoGrupo {
@@ -141,6 +142,8 @@ export interface INuevoGrupo {
   servicios?: IServicio[]
   notas?: string | null
   excepcionLocal?: boolean
+  copiaJefe?: boolean
+  copiaInstructores?: boolean
   participantes: { empleadoId: number; camaId: string }[]
 }
 
@@ -175,4 +178,90 @@ export interface IClaseSemana {
   fechaInicio: string
   fechaFinalizacion: string
   alumnos: number
+}
+
+export interface ISolicitudResumen {
+  id: number
+  grupoId: number
+  semanaInicio: string
+  fecha: string
+  folio: string
+  grupo: string
+  motivo: Motivo
+  claseId: number | null
+  huespedes: number
+  comensales: number
+}
+
+export interface IComensal {
+  id: number
+  empleadoId: number
+  nombre: string
+  sucursal: string
+  ccClave: string
+  esInstructor: boolean
+  excepcionLocal: boolean
+  servicios: IServicio[]
+}
+
+export interface ISolicitudDetalle extends Omit<ISolicitudResumen, 'huespedes' | 'comensales'> {
+  fechas: string[]
+  huespedes: {
+    id: number
+    empleadoId: number
+    nombre: string
+    sucursal: string
+    ccClave: string
+    camaId: string
+    habitacion: string
+    cama: number
+    tipoHab: string
+    entradaFecha: string
+    salidaFecha: string
+    estado: EstadoReserva
+    servicios: IServicio[]
+  }[]
+  comensales: IComensal[]
+}
+
+export interface IFueraServicio {
+  semanaInicio: string
+  nombre: string
+  filas: {
+    id: number
+    habitacion: string
+    camaId: string | null
+    cama: number | null
+    desde: string
+    hasta: string
+    motivo: string
+    registro: string
+  }[]
+}
+
+export interface ICaseta {
+  lat: number | null
+  lng: number | null
+  radio: number
+  url: string
+}
+
+export interface IMiReserva {
+  id: number
+  folio: string | null
+  habitacion: string
+  cama: number | null
+  camaId: string
+  entradaFecha: string
+  entradaHora: string
+  salidaFecha: string
+  salidaHora: string
+  estado: EstadoReserva
+  motivo: Motivo
+  detalleMotivo: string | null
+  checkinEn: string | null
+  checkoutEn: string | null
+  servicios: IServicio[]
+  puedeLlegar: boolean
+  puedeSalir: boolean
 }
