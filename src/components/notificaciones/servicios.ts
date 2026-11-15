@@ -8,6 +8,8 @@ export interface INotificacion {
   enlace: string | null
   leidaEn: string | null
   createdAt: string
+  /** Aviso fijo: se mantiene hasta que se resuelva la situación */
+  fija?: boolean
 }
 
 export const getNotificaciones = async (): Promise<INotificacion[]> => {

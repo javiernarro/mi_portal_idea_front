@@ -50,6 +50,7 @@ const bloques = computed(() => {
     const clave = n.tipo.split('.')[0]
     ;(grupos.find((g) => g.clave === clave) ?? grupos[grupos.length - 1]!).items.push(n)
   }
+  for (const g of grupos) g.items.sort((a, b) => Number(!!b.fija) - Number(!!a.fija))
   return grupos.filter((g) => g.items.length)
 })
 
@@ -121,12 +122,15 @@ const hace = (f: string) => {
           >
             <span
               class="mt-1.5 w-2 h-2 rounded-full shrink-0"
-              :class="n.leidaEn ? 'bg-transparent' : 'bg-red-500'"
+              :class="n.fija || !n.leidaEn ? 'bg-red-500' : 'bg-transparent'"
             ></span>
             <span class="flex flex-col">
-              <span class="text-sm font-medium text-neutral-800 dark:text-zinc-100">{{
-                n.titulo
-              }}</span>
+              <span class="flex items-center gap-2">
+                <span class="text-sm font-medium text-neutral-800 dark:text-zinc-100">{{
+                  n.titulo
+                }}</span>
+                <v-tag v-if="n.fija" value="Pendiente" severity="warn" class="text-xs" />
+              </span>
               <span class="text-sm text-neutral-600 dark:text-zinc-300">{{ n.mensaje }}</span>
               <span class="text-xs text-neutral-400 dark:text-zinc-500">{{
                 hace(n.createdAt)
