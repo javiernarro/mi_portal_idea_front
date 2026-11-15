@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import Swal from 'sweetalert2'
 import NavBar from '@/layout/NavBar.vue'
+import DialogoReglamento from '@/components/alimentosHospedaje/components/DialogoReglamento.vue'
 import type { IMiReserva } from '@/components/alimentosHospedaje/interfaces/alimentosHospedaje'
 import {
   getMiHospedaje,
@@ -25,6 +26,23 @@ const codigo = computed(() => {
 })
 const registrando = ref<number | null>(null)
 
+// Reglamento: se lee y acepta en cada llegada; también se puede consultar en cualquier momento
+const verReglamento = ref(false)
+const aceptarReglamento = ref(false)
+const pendienteLlegada = ref<IMiReserva | null>(null)
+
+const pedirLlegada = (r: IMiReserva) => {
+  pendienteLlegada.value = r
+  aceptarReglamento.value = true
+}
+
+const reglamentoAceptado = async (version: string) => {
+  const r = pendienteLlegada.value
+  if (!r) return
+  const ok = await registrar(r, 'llegada', version)
+  if (ok) aceptarReglamento.value = false
+}
+
 const ubicacion = () =>
   new Promise<GeolocationPosition>((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('Este teléfono no comparte su ubicación.'))
@@ -35,8 +53,8 @@ const ubicacion = () =>
     })
   })
 
-const registrar = async (r: IMiReserva, accion: 'llegada' | 'salida') => {
-  if (!codigo.value) return
+const registrar = async (r: IMiReserva, accion: 'llegada' | 'salida', reglamento?: string) => {
+  if (!codigo.value) return false
   registrando.value = r.id
   try {
     const pos = await ubicacion()
@@ -46,6 +64,7 @@ const registrar = async (r: IMiReserva, accion: 'llegada' | 'salida') => {
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
       precision: pos.coords.accuracy,
+      reglamento,
     })
     if (res) {
       sessionStorage.removeItem('ah-caseta')
@@ -58,6 +77,7 @@ const registrar = async (r: IMiReserva, accion: 'llegada' | 'salida') => {
             : 'Salida registrada. Gracias.',
       })
       queryClient.invalidateQueries({ queryKey: ['miHospedaje'] })
+      return true
     }
   } catch (e) {
     const geo = e as GeolocationPositionError
@@ -71,6 +91,7 @@ const registrar = async (r: IMiReserva, accion: 'llegada' | 'salida') => {
   } finally {
     registrando.value = null
   }
+  return false
 }
 
 const lugar = (r: IMiReserva) => (r.cama ? `${r.habitacion} · Cama ${r.cama}` : r.habitacion)
@@ -145,8 +166,8 @@ const comidas = (r: IMiReserva) =>
           </div>
 
           <div class="text-sm text-neutral-600 dark:text-zinc-300">
-            <b>Reglamento del Centro de Entrenamiento:</b> pendiente, el administrador lo agregará
-            aquí.
+            <b>Reglamento del Hostal:</b> lo aceptas al registrar tu llegada.
+            <a class="cursor-pointer underline" @click="verReglamento = true">Ver reglamento</a>
           </div>
 
           <div class="flex flex-wrap gap-2">
@@ -156,7 +177,7 @@ const comidas = (r: IMiReserva) =>
               icon="pi pi-sign-in"
               :disabled="!codigo"
               :loading="registrando === r.id"
-              @click="registrar(r, 'llegada')"
+              @click="pedirLlegada(r)"
             />
             <v-button
               v-if="r.puedeSalir"
@@ -177,4 +198,12 @@ const comidas = (r: IMiReserva) =>
       </div>
     </template>
   </v-card>
+
+  <DialogoReglamento v-model:visible="verReglamento" />
+  <DialogoReglamento
+    v-model:visible="aceptarReglamento"
+    para-aceptar
+    :cargando="registrando !== null"
+    @aceptar="reglamentoAceptado"
+  />
 </template>

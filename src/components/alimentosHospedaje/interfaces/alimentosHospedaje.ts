@@ -269,3 +269,15 @@ export interface IMiReserva {
   puedeLlegar: boolean
   puedeSalir: boolean
 }
+
+/** Reglamento del hostal que el huésped acepta en cada llegada. */
+export interface IReglamento {
+  version: string
+  titulo: string
+  introduccion: string
+  subtitulo: string
+  normas: string[]
+  cierre: string[]
+  firma: string[]
+  aceptacion: string
+}

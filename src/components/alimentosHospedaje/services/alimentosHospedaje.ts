@@ -2,6 +2,7 @@ import { api_mi_portal } from '@/api'
 import type {
   IBloqueo,
   ICaseta,
+  IReglamento,
   IFueraServicio,
   IMiReserva,
   IServicio,
@@ -208,7 +209,13 @@ export const postRegistroCaseta = async (registro: {
   lat: number
   lng: number
   precision: number
+  reglamento?: string
 }): Promise<{ id: number; estado: string }> => {
   const { data } = await api_mi_portal.post('/mi-hospedaje/registro', registro)
+  return data
+}
+
+export const getReglamento = async (): Promise<IReglamento> => {
+  const { data } = await api_mi_portal.get<IReglamento>('/mi-hospedaje/reglamento')
   return data
 }
