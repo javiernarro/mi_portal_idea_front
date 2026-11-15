@@ -165,8 +165,13 @@ const comidas = (r: IMiReserva) =>
             </div>
           </div>
 
-          <div class="text-sm text-neutral-600 dark:text-zinc-300">
-            <b>Reglamento del Hostal:</b> lo aceptas al registrar tu llegada.
+          <div v-if="r.estado !== 'CANCELADA'" class="text-sm text-neutral-600 dark:text-zinc-300">
+            <b>Reglamento del Hostal:</b>
+            {{
+              r.estado === 'RESERVADA'
+                ? 'lo aceptas al registrar tu llegada.'
+                : 'lo aceptaste al registrar tu llegada.'
+            }}
             <a class="cursor-pointer underline" @click="verReglamento = true">Ver reglamento</a>
           </div>
 

@@ -28,7 +28,8 @@ const abrir = async (e: Event) => {
   cargando.value = false
   if (pendientes.value) {
     await marcarLeidas().catch(() => null)
-    pendientes.value = false
+    // Los avisos fijos no se apagan al leerlos: el punto sigue mientras haya alguno
+    pendientes.value = lista.value.some((n) => n.fija)
   }
 }
 
@@ -50,8 +51,10 @@ const bloques = computed(() => {
     const clave = n.tipo.split('.')[0]
     ;(grupos.find((g) => g.clave === clave) ?? grupos[grupos.length - 1]!).items.push(n)
   }
+  // Los avisos fijos van primero en su bloque, y los bloques con avisos fijos van hasta arriba
+  const conFijas = (g: { items: INotificacion[] }) => Number(g.items.some((n) => n.fija))
   for (const g of grupos) g.items.sort((a, b) => Number(!!b.fija) - Number(!!a.fija))
-  return grupos.filter((g) => g.items.length)
+  return grupos.filter((g) => g.items.length).sort((a, b) => conFijas(b) - conFijas(a))
 })
 
 const ir = (n: INotificacion) => {
@@ -132,7 +135,7 @@ const hace = (f: string) => {
                 <v-tag v-if="n.fija" value="Pendiente" severity="warn" class="text-xs" />
               </span>
               <span class="text-sm text-neutral-600 dark:text-zinc-300">{{ n.mensaje }}</span>
-              <span class="text-xs text-neutral-400 dark:text-zinc-500">{{
+              <span v-if="!n.fija" class="text-xs text-neutral-400 dark:text-zinc-500">{{
                 hace(n.createdAt)
               }}</span>
             </span>
