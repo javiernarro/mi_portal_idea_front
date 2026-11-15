@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotificaciones, getPendientes, marcarLeidas, type INotificacion } from './servicios'
 
@@ -31,6 +31,27 @@ const abrir = async (e: Event) => {
     pendientes.value = false
   }
 }
+
+// Bloques por tipo de notificación (el tipo empieza con la categoría: "hospedaje.llegada", "cursos.inscripcion"...)
+// Cada bloque usa el mismo ícono que su sección en el menú del portal.
+const CATEGORIAS = [
+  { clave: 'hospedaje', titulo: 'Hospedaje y alimentos', icono: 'pi pi-building' },
+  { clave: 'cursos', titulo: 'Cursos e inscripciones', icono: 'pi pi-star' },
+  { clave: 'instructores', titulo: 'Instructores', icono: 'pi pi-graduation-cap' },
+] as const
+const OTRAS = { clave: 'otras', titulo: 'Otras', icono: 'pi pi-inbox' }
+
+const bloques = computed(() => {
+  const grupos = [...CATEGORIAS, OTRAS].map((c) => ({
+    ...c,
+    items: [] as INotificacion[],
+  }))
+  for (const n of lista.value) {
+    const clave = n.tipo.split('.')[0]
+    ;(grupos.find((g) => g.clave === clave) ?? grupos[grupos.length - 1]!).items.push(n)
+  }
+  return grupos.filter((g) => g.items.length)
+})
 
 const ir = (n: INotificacion) => {
   panel.value.hide()
@@ -84,25 +105,35 @@ const hace = (f: string) => {
         No tienes notificaciones.
       </div>
       <div v-else class="flex flex-col max-h-[420px] overflow-y-auto -mx-2">
-        <button
-          v-for="n in lista"
-          :key="n.id"
-          type="button"
-          class="text-left px-2 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-800 cursor-pointer flex gap-2"
-          @click="ir(n)"
-        >
-          <span
-            class="mt-1.5 w-2 h-2 rounded-full shrink-0"
-            :class="n.leidaEn ? 'bg-transparent' : 'bg-red-500'"
-          ></span>
-          <span class="flex flex-col">
-            <span class="text-sm font-medium text-neutral-800 dark:text-zinc-100">{{
-              n.titulo
-            }}</span>
-            <span class="text-sm text-neutral-600 dark:text-zinc-300">{{ n.mensaje }}</span>
-            <span class="text-xs text-neutral-400 dark:text-zinc-500">{{ hace(n.createdAt) }}</span>
-          </span>
-        </button>
+        <template v-for="b in bloques" :key="b.clave">
+          <div
+            class="sticky top-0 z-10 flex items-center gap-2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#283d9a] dark:text-[#8ea0f0] bg-white dark:bg-zinc-900 border-b border-neutral-200 dark:border-zinc-700"
+          >
+            <i :class="b.icono" />
+            <span>{{ b.titulo }}</span>
+          </div>
+          <button
+            v-for="n in b.items"
+            :key="n.id"
+            type="button"
+            class="text-left px-2 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-800 cursor-pointer flex gap-2"
+            @click="ir(n)"
+          >
+            <span
+              class="mt-1.5 w-2 h-2 rounded-full shrink-0"
+              :class="n.leidaEn ? 'bg-transparent' : 'bg-red-500'"
+            ></span>
+            <span class="flex flex-col">
+              <span class="text-sm font-medium text-neutral-800 dark:text-zinc-100">{{
+                n.titulo
+              }}</span>
+              <span class="text-sm text-neutral-600 dark:text-zinc-300">{{ n.mensaje }}</span>
+              <span class="text-xs text-neutral-400 dark:text-zinc-500">{{
+                hace(n.createdAt)
+              }}</span>
+            </span>
+          </button>
+        </template>
       </div>
     </div>
   </v-popover>
