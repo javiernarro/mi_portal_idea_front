@@ -196,8 +196,9 @@ const quitar = async () => {
           :disabled="!detalle || detalle.id !== r.id"
           @click="emit('editar', r)"
         />
+        <!-- Con la persona en casa no se cancela: se registra su salida -->
         <v-button
-          v-if="r.estado === 'RESERVADA' || r.estado === 'EN_CASA'"
+          v-if="r.estado === 'RESERVADA'"
           label="Cancelar reserva"
           icon="pi pi-times"
           severity="danger"

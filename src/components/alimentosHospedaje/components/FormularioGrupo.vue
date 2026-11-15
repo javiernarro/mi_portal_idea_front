@@ -203,7 +203,7 @@ const guardar = async () => {
 
       <div>
         <label>Nombre del grupo</label>
-        <v-inputtext fluid v-model="nombre" />
+        <v-inputtext fluid v-model="nombre" maxlength="150" />
       </div>
       <div>
         <label>Motivo</label>
@@ -220,6 +220,7 @@ const guardar = async () => {
         <v-inputtext
           fluid
           v-model="detalleMotivo"
+          maxlength="255"
           placeholder="Va en el folio; si se deja vacío se usa el nombre del grupo"
         />
       </div>

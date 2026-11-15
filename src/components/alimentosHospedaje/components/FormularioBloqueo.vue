@@ -92,7 +92,7 @@ const guardar = async () => {
       </div>
       <div class="md:col-span-2">
         <label>Motivo</label>
-        <v-inputtext fluid v-model="motivo" placeholder="Ej. mantenimiento, daño en chapa" />
+        <v-inputtext fluid v-model="motivo" maxlength="255" placeholder="Ej. mantenimiento, daño en chapa" />
       </div>
     </div>
     <template #footer>

@@ -254,6 +254,7 @@ const guardar = async () => {
             <v-inputtext
               fluid
               v-model="detalleMotivo"
+              maxlength="255"
               :placeholder="motivo === 'CURSO' ? 'Va en el folio de la solicitud' : 'Opcional'"
             />
           </div>
@@ -276,7 +277,7 @@ const guardar = async () => {
 
       <div class="md:col-span-2">
         <label>Notas</label>
-        <v-textarea fluid v-model="notas" rows="2" autoResize />
+        <v-textarea fluid v-model="notas" rows="2" autoResize maxlength="500" />
       </div>
     </div>
 
