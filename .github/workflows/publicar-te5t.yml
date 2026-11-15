@@ -1,0 +1,44 @@
+# Publica una rama del FRONTEND en te5t.miportalidea.mx. Nunca toca produccion:
+# la llave que usa solo puede ejecutar /root/despliegue/herramientas/scripts/despliegue/te5t_desde_github.sh
+name: Publicar en te5t
+
+on:
+  workflow_dispatch:
+    inputs:
+      rama:
+        description: "Rama del frontend a publicar en te5t"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: te5t-front
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Revisar datos
+        env:
+          RAMA: ${{ inputs.rama }}
+        run: |
+          [[ "$RAMA" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,79}$ ]] || { echo "Rama no valida"; exit 1; }
+      - name: Preparar llave
+        env:
+          LLAVE: ${{ secrets.TE5T_SSH_KEY }}
+          HOSTS: ${{ secrets.TE5T_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$LLAVE" > ~/.ssh/te5t && chmod 600 ~/.ssh/te5t
+          printf '%s\n' "$HOSTS" > ~/.ssh/known_hosts
+      - name: Publicar en te5t
+        env:
+          RAMA: ${{ inputs.rama }}
+        run: ssh -i ~/.ssh/te5t -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ServerAliveInterval=30 root@74.208.133.78 "front $RAMA"
+      - name: Borrar llave
+        if: always()
+        run: rm -f ~/.ssh/te5t
