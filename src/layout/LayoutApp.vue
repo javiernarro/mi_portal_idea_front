@@ -238,7 +238,7 @@ const onToggleCollapse = () => {
         'pt-2': true,
       }"
     >
-      <div class="mt-2">
+      <div class="mt-2" :class="{ 'min-h-[calc(100vh-5rem)]': autenticado }">
         <RouterView />
       </div>
       <PiePortal :fijo="!autenticado" />

@@ -25,7 +25,7 @@ const { descargar } = useOrdenes()
     <template #header>Archivos</template>
 
     <template #empty>
-      <span>No hay alumnos para esta clase.</span>
+      <span>No hay archivos para esta clase.</span>
     </template>
     <template #loading>
       <div class="flex flex-col items-center justify-center">
