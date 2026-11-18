@@ -18,7 +18,7 @@ import useOcupaciones from '@/components/ocupacion/composables/useOcupaciones'
 import useEmpresasPorNombre from '@/components/empresa/composables/useEmpresasPorNombre'
 import type { IEmpresa } from '@/components/empresa/interfaces/empresa'
 import type { FileUploadSelectEvent } from 'primevue'
-import { apiUrl } from '@/api'
+import { useArchivoProtegido } from '@/api/archivos'
 
 const { empleado, cancelar, guardar } = defineProps<Props>()
 const { activo, verificado, tipoEmpleado, tieneUsuario, instructor } = useDatos()
@@ -33,6 +33,8 @@ const { ocupaciones } = useOcupaciones()
 
 const padre = ref()
 const imagePreview = ref<string | null>(null)
+// La firma guardada se descarga con la sesión (ya no es un enlace público)
+const firmaGuardada = useArchivoProtegido(computed(() => empleado?.pathArchivo))
 const imageName = ref<string | null>(null)
 
 // Inicializar empresaId correctamente
@@ -529,7 +531,7 @@ const onSubmit = handleSubmit((values) => {
           cancelLabel="Cancelar"
           :showUploadButton="false"
           :multiple="false"
-          accept="image/*"
+          accept="image/png,image/jpeg"
           @select="onFileSelect"
           @remove="onFileRemove"
           @clear="onFileRemove"
@@ -550,7 +552,7 @@ const onSubmit = handleSubmit((values) => {
               v-if="empleado?.pathArchivo !== null && !imagePreview"
               class="mt-3 border rounded h-[400px]"
             >
-              <img :src="`${apiUrl}/archivos/${empleado?.pathArchivo}`" />
+              <img v-if="firmaGuardada" :src="firmaGuardada" />
             </div>
 
             <ErrorMessage name="file" class="text-red-500" />

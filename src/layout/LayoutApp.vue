@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import useAuth from '@/components/auth/composables/useAuth'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { getMiHospedaje } from '@/components/alimentosHospedaje/services/alimentosHospedaje'
 import BotonModoOscuro from './BotonModoOscuro.vue'
+import PiePortal from './PiePortal.vue'
 import useModoOscuro from '@/composables/useModoOscuro'
 import {
   verificarPermiso,
@@ -10,8 +12,19 @@ import {
 } from '@/guards/verificarPermiso'
 
 const { autenticado, logout } = useAuth()
-const collapsed = ref<boolean>(false)
+// En el teléfono (p. ej. al escanear el QR de Caseta) el menú inicia cerrado para no tapar la pantalla
+const collapsed = ref<boolean>(window.innerWidth < 768)
 const { oscuro } = useModoOscuro()
+
+// "Mi hospedaje" solo aparece a quien tiene hospedaje vigente o próximo
+const tieneHospedaje = ref(false)
+watch(
+  autenticado,
+  async (v) => {
+    tieneHospedaje.value = v ? !!(await getMiHospedaje().catch(() => []))?.length : false
+  },
+  { immediate: true },
+)
 
 const menu = computed(() => {
   return [
@@ -24,6 +37,17 @@ const menu = computed(() => {
       title: 'Mis cursos',
       icon: 'pi pi-graduation-cap',
       href: '/mis-cursos',
+    },
+    {
+      title: 'Mi cuenta',
+      icon: 'pi pi-user',
+      child: [
+        {
+          href: '/cambiar-password',
+          title: 'Cambiar contraseña',
+          icon: 'pi pi-lock',
+        },
+      ],
     },
     {
       title: 'Gestion',
@@ -141,6 +165,18 @@ const menu = computed(() => {
         },
       ],
     },
+    {
+      title: 'Mi hospedaje',
+      icon: 'pi pi-key',
+      href: '/mi-hospedaje',
+      hidden: !tieneHospedaje.value,
+    },
+    {
+      title: 'Alimentos y Hospedaje',
+      icon: 'pi pi-building',
+      href: '/alimentos-hospedaje',
+      hidden: !verificarPermiso('AlimentosHospedaje.Ver'),
+    },
   ]
 })
 
@@ -154,6 +190,7 @@ const onToggleCollapse = () => {
     :menu="menu"
     :theme="oscuro ? '' : 'white-theme'"
     :hideToggle="false"
+    :collapsed="collapsed"
     v-if="autenticado"
     @update:collapsed="onToggleCollapse"
   >
@@ -164,7 +201,8 @@ const onToggleCollapse = () => {
       </div>
     </template>
     <template v-slot:footer>
-      <div v-if="!collapsed" class="px-2 pt-2 flex justify-center items-center">
+      <!-- El cambio de modo claro/oscuro siempre está visible, también con el menú cerrado -->
+      <div class="px-2 pt-2 flex justify-center items-center">
         <BotonModoOscuro />
       </div>
       <div class="p-2 flex! justify-center items-center">
@@ -200,9 +238,10 @@ const onToggleCollapse = () => {
         'pt-2': true,
       }"
     >
-      <div class="mt-2">
+      <div class="mt-2" :class="{ 'min-h-[calc(100vh-5rem)]': autenticado }">
         <RouterView />
       </div>
+      <PiePortal :fijo="!autenticado" />
     </div>
   </div>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import useArchivosClase from '../composables/useArchivosClase'
 import router from '@/router'
 import FormularioArchivosClase from '../components/FormularioArchivosClase.vue'
 import useGuardarArchivosClase from '../composables/useGuardarArchivosClase'
@@ -8,10 +9,24 @@ import { useRoute } from 'vue-router'
 import { verificarPermiso } from '@/guards/verificarPermiso'
 
 const visible = ref<boolean>(true)
+const { params } = useRoute()
+const { archivosClase, isLoading } = useArchivosClase(+params.id!)
+const esAdmin = () => {
+  try {
+    return JSON.parse(localStorage.getItem('empleado') ?? 'null')?.data?.perfil?.nombre === 'ADMIN'
+  } catch {
+    return false
+  }
+}
 // Solo los perfiles con permiso para subir archivos ven el formulario de carga;
 // los demas (p. ej. Consulta o Jefe) solo ven y descargan la lista.
-const puedeSubir = verificarPermiso('Clases.Subir.Archivos')
-const { params } = useRoute()
+// Punto 21: la carga es una sola vez; despues solo el Administrador puede agregar mas.
+const puedeSubir = computed(
+  () =>
+    verificarPermiso('Clases.Subir.Archivos') &&
+    !isLoading.value &&
+    (esAdmin() || archivosClase.value.length === 0),
+)
 
 const { guardarArchivosClaseMutation, isPending } = useGuardarArchivosClase()
 
@@ -39,6 +54,15 @@ const cancelar = () => {
       :pendiente="isPending"
     />
     <TablaArchivosClase :id="+params.id!" :class="{ 'mt-3': puedeSubir }" />
+    <div v-if="!puedeSubir" class="flex justify-end mt-3">
+      <v-button
+        icon="pi pi-times"
+        label="Cerrar"
+        severity="danger"
+        size="small"
+        @click="cancelar"
+      />
+    </div>
   </v-dialog>
 </template>
 

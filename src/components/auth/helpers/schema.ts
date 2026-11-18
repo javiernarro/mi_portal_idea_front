@@ -1,4 +1,5 @@
 import * as yup from 'yup'
+import { reglaPassword } from '@/components/miCuenta/helpers'
 
 export const schema = yup.object({
   usuario: yup.string().default('').required('El usuario es requerido.'),
@@ -13,7 +14,12 @@ export const schemaOlvidada = yup.object({
     .required('El campo es requerido.'),
 })
 
+// Punto 10: mismas reglas que el servidor y las dos contraseñas deben coincidir
 export const schemaRecuperar = yup.object({
-  password: yup.string().nullable().required('El campo es requerido.'),
-  verificarPassword: yup.string().nullable().required('El campo es requerido.'),
+  password: reglaPassword,
+  verificarPassword: yup
+    .string()
+    .nullable()
+    .required('El campo es requerido.')
+    .oneOf([yup.ref('password')], 'Las contraseñas no coinciden.'),
 })

@@ -1,3 +1,4 @@
+import { conSesion } from '@/api/archivos'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiUrl } from '@/api'
 import type { IClaseEmpleado } from '@/components/clase/interfaces/clase_empleado'
@@ -16,7 +17,7 @@ const usePdf = () => {
       return ''
     }
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, conSesion)
       if (!response.ok) return ''
 
       const blob = await response.blob()

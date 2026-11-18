@@ -8,3 +8,8 @@ export const auth = async (payload: IAuth) => {
 
   return data
 }
+
+/** Punto 12: cierra la sesión en el servidor (borra la cookie). */
+export const salir = async () => {
+  await api_mi_portal.post('/salir')
+}

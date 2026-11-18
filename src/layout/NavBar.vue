@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
+import BotonNotificaciones from '@/components/notificaciones/BotonNotificaciones.vue'
 
 interface Props {
   titulo: string
@@ -19,6 +20,7 @@ const { nombreEmpleado, autenticado } = storeToRefs(authSotore)
     </template>
     <template #end>
       <div class="flex items-center gap-2 p-2">
+        <BotonNotificaciones />
         <span class="text-xl! text-[#283d9a]! dark:text-[#8ea0f0]!">{{ nombreEmpleado }}</span>
       </div>
     </template>

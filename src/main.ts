@@ -202,3 +202,10 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+// P1: al salir (o cerrarse la sesión) en una pestaña, las demás pestañas del portal también se cierran
+window.addEventListener('storage', (e) => {
+  if (e.key === 'empleado' && e.newValue === null && window.location.pathname !== '/') {
+    window.location.assign('/')
+  }
+})

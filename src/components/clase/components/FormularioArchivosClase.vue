@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FileUploadUploaderEvent } from 'primevue'
 import { ErrorMessage, Field, useForm } from 'vee-validate'
-import { schemaArchivos } from '../helpers/schemaArchivos'
+import { esPdf, MENSAJE_SOLO_PDF, schemaArchivos } from '../helpers/schemaArchivos'
+import { mensajeWarning, pregunta } from '@/helper/mensajes'
 import type { IArchivos } from '../interfaces/arhivos'
 import { useRoute } from 'vue-router'
 import type { PropsArchivosClase } from '../interfaces/props'
@@ -18,10 +19,19 @@ const { handleSubmit, setFieldValue } = useForm<IArchivos>({
 const archivos = (e: FileUploadUploaderEvent) => {
   const files: File[] = Array.isArray(e.files) ? e.files : [e.files]
 
+  // Punto 22: solo PDF
+  if (files.some((f) => !esPdf(f))) mensajeWarning(MENSAJE_SOLO_PDF)
   setFieldValue('files', files)
 }
 
-const submit = handleSubmit((values) => {
+const submit = handleSubmit(async (values) => {
+  // Punto 21: se confirma porque la carga es una sola vez
+  await pregunta(
+    '¿Estás seguro de cargar los archivos seleccionados?',
+    'Este cambio no se puede deshacer.',
+    'Aceptar',
+    'Cancelar',
+  )
   const formData = new FormData()
 
   values.files.forEach((file) => {
@@ -51,7 +61,7 @@ const submit = handleSubmit((values) => {
           :showCancelButton="false"
           uploadLabel="Subir archivos"
           :multiple="true"
-          accept=".pdf, .xls, .xlsx, .doc, .docx"
+          accept=".pdf,application/pdf"
           @select="archivos($event)"
         />
         <ErrorMessage name="files" class="text-red-500" />

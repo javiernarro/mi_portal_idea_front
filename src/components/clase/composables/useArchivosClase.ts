@@ -7,7 +7,8 @@ const useArchivosClase = (id: number) => {
   const archivosClase = ref<IArchivoClase[]>([])
 
   const { data, isLoading } = useQuery({
-    queryKey: ['getArchivosClase'],
+    // Con el id: antes se mostraba por un momento la lista de otra clase
+    queryKey: ['getArchivosClase', id],
     queryFn: () => getArchivosClase(id),
   })
 

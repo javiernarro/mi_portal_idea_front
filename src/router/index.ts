@@ -26,6 +26,9 @@ import { ubicacionRutas } from '@/components/ubicacion/router'
 import { createRouter, createWebHistory } from 'vue-router'
 import VerificarCuentaPage from '@/pages/VerificarCuentaPage.vue'
 import ConsultaReCatPage from '@/pages/ConsultaReCatPage.vue'
+import AlimentosHospedajePage from '@/pages/AlimentosHospedajePage.vue'
+import MiHospedajePage from '@/pages/MiHospedajePage.vue'
+import CambiarPasswordPage from '@/pages/CambiarPasswordPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +43,13 @@ const router = createRouter({
       name: 'home',
       beforeEnter: [verificarAutenticacion],
       component: HomePage,
+    },
+    {
+      // Punto 10: Mi cuenta > Cambiar contraseña (cualquier persona con sesión)
+      path: '/cambiar-password',
+      name: 'cambiar-password',
+      beforeEnter: [verificarAutenticacion],
+      component: CambiarPasswordPage,
     },
     {
       ...areaTemaricaRutas,
@@ -109,6 +119,22 @@ const router = createRouter({
         ruta_permitida: 'ConsultaReCat.Ver',
       },
       component: ConsultaReCatPage,
+    },
+    {
+      // Cualquier persona con sesion: solo ve su propio hospedaje
+      path: '/mi-hospedaje',
+      name: 'mi-hospedaje',
+      beforeEnter: [verificarAutenticacion],
+      component: MiHospedajePage,
+    },
+    {
+      path: '/alimentos-hospedaje',
+      name: 'alimentos-hospedaje',
+      beforeEnter: [verificarAutenticacion],
+      meta: {
+        ruta_permitida: 'AlimentosHospedaje.Ver',
+      },
+      component: AlimentosHospedajePage,
     },
     {
       ...sucursalRutas,

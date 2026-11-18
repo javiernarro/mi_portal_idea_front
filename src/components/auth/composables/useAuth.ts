@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import { auth } from '../services/auth'
+import { auth, salir } from '../services/auth'
 import type { AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
@@ -38,7 +38,13 @@ const useAuth = () => {
       })
       localStorage.setItem('empleado', JSON.stringify(payload))
       aplicarTemaDelUsuario()
-      router.push('/home')
+      // Punto 10: primero cambia la contraseña que le asignó el Administrador
+      if (payload.debeCambiarPassword) {
+        router.push('/cambiar-password')
+        return
+      }
+      // Si llegó escaneando el QR de Caseta, vuelve a Mi hospedaje
+      router.push(sessionStorage.getItem('ah-caseta') ? '/mi-hospedaje' : '/home')
     },
     onError: (error: AxiosError) => {
       const data = error.response?.data as IErrors
@@ -53,7 +59,9 @@ const useAuth = () => {
   })
 
   const logout = () => {
-    pregunta('¿Deseas salir del sistema?', '', 'Aceptar').then(() => {
+    pregunta('¿Deseas salir del sistema?', '', 'Aceptar').then(async () => {
+      // Punto 12: cierra la sesión también en el servidor
+      await salir().catch(() => undefined)
       localStorage.removeItem('empleado')
       restablecerTemaClaro()
       authStore.setAutenticado(false)
