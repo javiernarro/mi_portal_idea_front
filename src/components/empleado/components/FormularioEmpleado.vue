@@ -531,7 +531,7 @@ const onSubmit = handleSubmit((values) => {
           cancelLabel="Cancelar"
           :showUploadButton="false"
           :multiple="false"
-          accept="image/*"
+          accept="image/png,image/jpeg"
           @select="onFileSelect"
           @remove="onFileRemove"
           @clear="onFileRemove"
