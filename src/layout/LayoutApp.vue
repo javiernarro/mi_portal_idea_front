@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import useAuth from '@/components/auth/composables/useAuth'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth'
 import { computed, ref, watch } from 'vue'
 import { getMiHospedaje } from '@/components/alimentosHospedaje/services/alimentosHospedaje'
 import BotonModoOscuro from './BotonModoOscuro.vue'
@@ -26,7 +28,13 @@ watch(
   { immediate: true },
 )
 
+const { nombreEmpleado } = storeToRefs(useAuthStore())
+
 const menu = computed(() => {
+  // Se vuelve a armar al entrar o salir y al cambiar de persona: los permisos se leen del navegador
+  // y antes el menú de la cuenta anterior se quedaba hasta recargar la página.
+  void autenticado.value
+  void nombreEmpleado.value
   return [
     {
       title: 'Inicio',
