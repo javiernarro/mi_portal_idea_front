@@ -201,7 +201,8 @@ const onToggleCollapse = () => {
       </div>
     </template>
     <template v-slot:footer>
-      <div v-if="!collapsed" class="px-2 pt-2 flex justify-center items-center">
+      <!-- El cambio de modo claro/oscuro siempre está visible, también con el menú cerrado -->
+      <div class="px-2 pt-2 flex justify-center items-center">
         <BotonModoOscuro />
       </div>
       <div class="p-2 flex! justify-center items-center">
