@@ -38,6 +38,17 @@ const menu = computed(() => {
       href: '/mis-cursos',
     },
     {
+      title: 'Mi cuenta',
+      icon: 'pi pi-user',
+      child: [
+        {
+          href: '/cambiar-password',
+          title: 'Cambiar contraseña',
+          icon: 'pi pi-lock',
+        },
+      ],
+    },
+    {
       title: 'Gestion',
       icon: 'pi pi-cog',
       hidden: !verificarSiMostrarGestion(),

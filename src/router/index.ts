@@ -28,6 +28,7 @@ import VerificarCuentaPage from '@/pages/VerificarCuentaPage.vue'
 import ConsultaReCatPage from '@/pages/ConsultaReCatPage.vue'
 import AlimentosHospedajePage from '@/pages/AlimentosHospedajePage.vue'
 import MiHospedajePage from '@/pages/MiHospedajePage.vue'
+import CambiarPasswordPage from '@/pages/CambiarPasswordPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,13 @@ const router = createRouter({
       name: 'home',
       beforeEnter: [verificarAutenticacion],
       component: HomePage,
+    },
+    {
+      // Punto 10: Mi cuenta > Cambiar contraseña (cualquier persona con sesión)
+      path: '/cambiar-password',
+      name: 'cambiar-password',
+      beforeEnter: [verificarAutenticacion],
+      component: CambiarPasswordPage,
     },
     {
       ...areaTemaricaRutas,

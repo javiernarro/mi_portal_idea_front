@@ -26,7 +26,13 @@ api_mi_portal.interceptors.response.use(
   },
   function (error) {
     console.log(error)
-    if (error.response.status === 403) {
+    // Punto 10: el servidor pide cambiar la contraseña antes de continuar
+    if (error.response?.status === 403 && error.response.data?.name === 'CambioPassword') {
+      if (window.location.pathname !== '/cambiar-password')
+        window.location.assign('/cambiar-password')
+      return Promise.reject(error)
+    }
+    if (error.response?.status === 403) {
       Swal.fire({
         icon: 'warning',
         title: 'Oops...',

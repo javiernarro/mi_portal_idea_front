@@ -4,6 +4,7 @@ import type { IRecuperar } from '../interfaces/recuperar'
 import { schemaRecuperar } from '../helpers/schema'
 import useRecuperar from '../composables/useRecuperar'
 import { useRoute } from 'vue-router'
+import { medidorPassword } from '@/components/miCuenta/helpers'
 
 const { recuperarMutation, isPending } = useRecuperar()
 
@@ -38,6 +39,7 @@ const submit = handleSubmit((values) => {
             <label for="password">Contraseña</label>
             <v-password
               fluid
+              v-bind="medidorPassword"
               :modelValue="field.value"
               @update:modelValue="field.onChange"
               :invalid="meta.touched && errors.length > 0"
