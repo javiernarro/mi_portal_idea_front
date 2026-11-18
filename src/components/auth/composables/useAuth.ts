@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import { auth } from '../services/auth'
+import { auth, salir } from '../services/auth'
 import type { AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
@@ -59,7 +59,9 @@ const useAuth = () => {
   })
 
   const logout = () => {
-    pregunta('¿Deseas salir del sistema?', '', 'Aceptar').then(() => {
+    pregunta('¿Deseas salir del sistema?', '', 'Aceptar').then(async () => {
+      // Punto 12: cierra la sesión también en el servidor
+      await salir().catch(() => undefined)
       localStorage.removeItem('empleado')
       restablecerTemaClaro()
       authStore.setAutenticado(false)

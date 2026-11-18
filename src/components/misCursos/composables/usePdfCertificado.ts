@@ -1,4 +1,4 @@
-import { encabezadoSesion } from '@/api/archivos'
+import { conSesion } from '@/api/archivos'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from '@tanstack/vue-query'
 import { getDatosPdf } from '../services/pdf'
@@ -28,7 +28,7 @@ const usePdfCertificado = () => {
       return ''
     }
     try {
-      const response = await fetch(url, { headers: encabezadoSesion() })
+      const response = await fetch(url, conSesion)
       if (!response.ok) return ''
 
       const blob = await response.blob()

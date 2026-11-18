@@ -1,15 +1,8 @@
 import { onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import { apiUrl } from '.'
 
-/** Encabezado con la sesión: las firmas y evidencias de /archivos ya no se abren sin iniciar sesión. */
-export const encabezadoSesion = (): Record<string, string> => {
-  try {
-    const token = JSON.parse(localStorage.getItem('empleado') ?? 'null')?.token
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  } catch {
-    return {}
-  }
-}
+/** Punto 12: la cookie de sesión se envía sola; esto solo deja claro que la petición va con la sesión. */
+export const conSesion: RequestInit = { credentials: 'include' }
 
 /** URL local (blob) de un archivo protegido, para mostrarlo en un <img>. */
 export const useArchivoProtegido = (nombre: Ref<string | null | undefined>) => {
@@ -24,9 +17,7 @@ export const useArchivoProtegido = (nombre: Ref<string | null | undefined>) => {
       liberar()
       if (!n) return
       try {
-        const r = await fetch(`${apiUrl}/archivos/${encodeURIComponent(n)}`, {
-          headers: encabezadoSesion(),
-        })
+        const r = await fetch(`${apiUrl}/archivos/${encodeURIComponent(n)}`, conSesion)
         if (r.ok) url.value = URL.createObjectURL(await r.blob())
       } catch {
         url.value = null
