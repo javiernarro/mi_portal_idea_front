@@ -3,6 +3,7 @@ import useAuth from '@/components/auth/composables/useAuth'
 import { computed, ref, watch } from 'vue'
 import { getMiHospedaje } from '@/components/alimentosHospedaje/services/alimentosHospedaje'
 import BotonModoOscuro from './BotonModoOscuro.vue'
+import PiePortal from './PiePortal.vue'
 import useModoOscuro from '@/composables/useModoOscuro'
 import {
   verificarPermiso,
@@ -239,6 +240,7 @@ const onToggleCollapse = () => {
       <div class="mt-2">
         <RouterView />
       </div>
+      <PiePortal :fijo="!autenticado" />
     </div>
   </div>
 
