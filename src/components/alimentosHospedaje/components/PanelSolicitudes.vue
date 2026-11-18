@@ -81,6 +81,10 @@ const abrirComensales = (s: ISolicitudResumen) => {
       <v-column header="Folio">
         <template #body="{ data }">
           <span class="font-semibold break-all">{{ data.folio }}</span>
+          <!-- Punto 20: se queda en el historial, marcada cuando ya no tiene personas -->
+          <div v-if="!data.huespedes && !data.comensales" class="mt-1">
+            <v-tag value="Cancelada, sin personas" severity="secondary" />
+          </div>
         </template>
       </v-column>
       <v-column field="grupo" header="Grupo" />
