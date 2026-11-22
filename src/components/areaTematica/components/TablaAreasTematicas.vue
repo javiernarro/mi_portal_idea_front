@@ -32,7 +32,7 @@ const { eliminar, isPending } = useEliminar()
         </v-iconfield>
         <router-link
           :to="{ path: 'crear-area-tematica' }"
-          v-if="verificarPermiso('Ocupaciones.Crear')"
+          v-if="verificarPermiso('AreasTematicas.Crear')"
         >
           <v-button icon="pi pi-plus" label="Crear area tematica" size="small" />
         </router-link>
