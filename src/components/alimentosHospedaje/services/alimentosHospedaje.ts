@@ -215,7 +215,15 @@ export const postRegistroCaseta = async (registro: {
   return data
 }
 
-export const getReglamento = async (): Promise<IReglamento> => {
-  const { data } = await api_mi_portal.get<IReglamento>('/mi-hospedaje/reglamento')
+/** paraAceptar: el servidor anota que se abrió para aceptarlo (punto 15). */
+export const getReglamento = async (paraAceptar = false): Promise<IReglamento> => {
+  const { data } = await api_mi_portal.get<IReglamento>('/mi-hospedaje/reglamento', {
+    params: paraAceptar ? { aceptar: 1 } : undefined,
+  })
   return data
+}
+
+/** Avisa al servidor que el reglamento se recorrió hasta el final (punto 15). */
+export const postReglamentoLeido = async () => {
+  await api_mi_portal.post('/mi-hospedaje/reglamento/leido')
 }

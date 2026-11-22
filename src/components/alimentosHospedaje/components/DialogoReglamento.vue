@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import type { IReglamento } from '../interfaces/alimentosHospedaje'
-import { getReglamento } from '../services/alimentosHospedaje'
+import { getReglamento, postReglamentoLeido } from '../services/alimentosHospedaje'
 import { mostrarError } from '../composables/useAlimentosHospedaje'
 
 /**
@@ -19,7 +19,12 @@ const contenedor = ref<HTMLElement | null>(null)
 
 const revisarFinal = () => {
   const el = contenedor.value
-  if (el && el.scrollTop + el.clientHeight >= el.scrollHeight - 8) leidoHastaElFinal.value = true
+  if (!el || leidoHastaElFinal.value || !reglamento.value) return
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8) {
+    leidoHastaElFinal.value = true
+    // Para aceptarlo, el servidor anota que se recorrió hasta el final
+    if (props.paraAceptar) postReglamentoLeido().catch(mostrarError)
+  }
 }
 
 watch(
@@ -28,7 +33,9 @@ watch(
     if (!v) return
     leidoHastaElFinal.value = false
     aceptado.value = false
-    reglamento.value ??= (await getReglamento().catch(mostrarError)) ?? null
+    // Para aceptarlo se pide de nuevo: así el servidor anota cuándo se abrió
+    if (props.paraAceptar || !reglamento.value)
+      reglamento.value = (await getReglamento(props.paraAceptar).catch(mostrarError)) ?? null
     await nextTick()
     if (contenedor.value) contenedor.value.scrollTop = 0
     revisarFinal()
