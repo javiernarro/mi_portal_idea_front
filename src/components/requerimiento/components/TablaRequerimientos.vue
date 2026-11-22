@@ -71,7 +71,15 @@ const { eliminar } = useEliminar()
         />
       </template>
     </v-column>
-    <v-column header="Acciones" :exportable="false">
+    <v-column
+      header="Acciones"
+      :exportable="false"
+      v-if="
+        verificarPermiso('Requerimientos.Bitacora') ||
+        verificarPermiso('Requerimientos.Eliminar') ||
+        verificarPermiso('Requerimientos.Modificar')
+      "
+    >
       <template #body="{ data }: { data: IRequerimiento }">
         <div class="flex gap-2 justify-center">
           <router-link

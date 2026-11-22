@@ -54,7 +54,14 @@ const { eliminar, isPending } = useEliminar()
       </template>
     </v-column>
 
-    <v-column header="Acciones">
+    <v-column
+      header="Acciones"
+      v-if="
+        verificarPermiso('Ocupaciones.Bitacora') ||
+        verificarPermiso('Ocupaciones.Eliminar') ||
+        verificarPermiso('Ocupaciones.Modificar')
+      "
+    >
       <template #body="{ data }: { data: IOcupacion }">
         <div class="flex gap-2 justify-center">
           <router-link
