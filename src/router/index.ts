@@ -1,5 +1,6 @@
 import NotFound from '@/components/notfound/NotFound.vue'
 import HomePage from '@/pages/HomePage.vue'
+import { verificarEmpleado } from '@/guards/verificarEmpleado'
 import LoginPage from '@/pages/LoginPage.vue'
 import NotFoundPage from '@/pages/NotFoundPage.vue'
 import UnauthorizedPage from '@/pages/UnauthorizedPage.vue'
@@ -36,6 +37,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'login',
+      // Con sesión abierta, la dirección principal lleva a Inicio (si la sesión ya venció, el portal regresa aquí)
+      beforeEnter: async () => ((await verificarEmpleado()) ? '/home' : true),
       component: LoginPage,
     },
     {

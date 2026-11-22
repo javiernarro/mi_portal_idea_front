@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotificaciones, getPendientes, marcarLeidas, type INotificacion } from './servicios'
+import { verificarPermiso } from '@/guards/verificarPermiso'
 
 // Bandeja de notificaciones: sin número, solo un punto rojo cuando hay algo sin leer.
 const router = useRouter()
@@ -59,9 +60,25 @@ const bloques = computed(() => {
   return grupos.filter((g) => g.items.length).sort((a, b) => conFijas(b) - conFijas(a))
 })
 
+// Avisos guardados antes de que tuvieran sección: se llevan a la sección de su tipo
+const ENLACE_POR_TIPO: Record<string, string> = { cursos: '/lista-clases', seguridad: '/empleados' }
+
+/** A dónde lleva la notificación, solo si el perfil puede ver esa sección (si no, queda como mensaje). */
+const destino = (n: INotificacion) => {
+  const enlace = n.enlace ?? ENLACE_POR_TIPO[n.tipo.split('.')[0]!]
+  if (!enlace) return null
+  const ruta = router.resolve(enlace)
+  if (!ruta.matched.length || ruta.matched.some((r) => r.path.includes(':pathMatch'))) return null
+  const permitida = ruta.matched.every(
+    (r) => !r.meta.ruta_permitida || verificarPermiso(r.meta.ruta_permitida as string),
+  )
+  return permitida ? enlace : null
+}
+
 const ir = (n: INotificacion) => {
   panel.value.hide()
-  if (n.enlace) router.push(n.enlace)
+  const enlace = destino(n)
+  if (enlace) router.push(enlace)
 }
 
 // "hace 5 minutos", "hace 2 horas"... (la fecha llega en hora local del servidor)
@@ -124,7 +141,10 @@ const hace = (f: string) => {
             v-for="n in b.items"
             :key="n.id"
             type="button"
-            class="text-left px-2 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-800 cursor-pointer flex gap-2"
+            :class="[
+              'text-left px-2 py-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-800 flex gap-2',
+              destino(n) ? 'cursor-pointer' : 'cursor-default',
+            ]"
             @click="ir(n)"
           >
             <span
