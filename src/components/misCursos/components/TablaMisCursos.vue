@@ -201,10 +201,10 @@ const filters = ref({
       </template>
     </v-column>
   </v-datatable>
-  <div class="flex justify-end mt-2">
+  <div class="flex justify-end mt-2" v-if="verificarPermiso('Empleados.Descargar.DC3')">
     <v-button
       icon="pi pi-download"
-      label="Descragar todo"
+      label="Descargar todo"
       size="small"
       type="button"
       @click="descargar"
