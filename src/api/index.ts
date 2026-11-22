@@ -22,8 +22,36 @@ export const sesionCerrada = (mensaje?: string) => {
   }).then(() => window.location.assign('/'))
 }
 
+// Punto 11 (P1): al abrir un Empleado, Clase o Curso se guarda su versión; al guardarlo se manda de regreso
+// para que el servidor avise si otra persona lo cambió mientras se editaba.
+const versiones = new Map<string, string>()
+const claveRegistro = (url = '', datos?: unknown) => {
+  const m = url.match(/^\/(empleado|clase|curso)(?:\/(\d+))?$/)
+  if (!m) return null
+  const id =
+    m[2] ??
+    (datos instanceof FormData ? datos.get('id') : (datos as { id?: unknown } | undefined)?.id)
+  return id ? `${m[1]}:${id}` : null
+}
+
+api_mi_portal.interceptors.request.use((config) => {
+  if (config.method === 'put') {
+    const clave = claveRegistro(config.url, config.data)
+    const version = clave ? versiones.get(clave) : undefined
+    if (version) config.headers.set('X-Version-Registro', version)
+  }
+  return config
+})
+
 api_mi_portal.interceptors.response.use(
   function (response) {
+    const clave = claveRegistro(response.config.url)
+    if (clave && response.config.method === 'get') {
+      const version = response.headers['x-version-registro']
+      if (version) versiones.set(clave, String(version))
+    } else if (clave && response.config.method === 'put') {
+      versiones.delete(clave)
+    }
     return response
   },
   function (error) {
