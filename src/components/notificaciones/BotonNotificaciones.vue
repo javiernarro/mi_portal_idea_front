@@ -39,6 +39,8 @@ const CATEGORIAS = [
   { clave: 'hospedaje', titulo: 'Hospedaje y alimentos', icono: 'pi pi-building' },
   { clave: 'cursos', titulo: 'Cursos e inscripciones', icono: 'pi pi-star' },
   { clave: 'instructores', titulo: 'Instructores', icono: 'pi pi-graduation-cap' },
+  // Alertas de seguridad (solo las recibe el Administrador): bloqueos, dos dispositivos, descargas, reactivaciones
+  { clave: 'seguridad', titulo: 'Seguridad', icono: 'pi pi-shield' },
 ] as const
 const OTRAS = { clave: 'otras', titulo: 'Otras', icono: 'pi pi-inbox' }
 
@@ -85,14 +87,16 @@ const hace = (f: string) => {
 <template>
   <button
     type="button"
-    class="relative flex items-center justify-center w-10 h-10 rounded-full cursor-pointer text-[#283d9a] dark:text-[#8ea0f0] hover:bg-neutral-100 dark:hover:bg-zinc-800 transition-colors"
+    class="relative flex items-center justify-center h-10 px-1.5 rounded-full cursor-pointer text-[#283d9a] dark:text-[#8ea0f0] hover:bg-neutral-100 dark:hover:bg-zinc-800 transition-colors"
     :aria-label="pendientes ? 'Notificaciones (hay nuevas)' : 'Notificaciones'"
     @click="abrir"
   >
-    <i class="pi pi-inbox text-xl!" />
+    <!-- Ícono de notificaciones: logo de Mi Portal IDEA (en modo obscuro, en el azul claro del portal) -->
+    <img src="/iconos/notificaciones.svg" alt="" class="h-7 w-auto dark:hidden" />
+    <img src="/iconos/notificaciones-obscuro.svg" alt="" class="h-7 w-auto hidden dark:block" />
     <span
       v-if="pendientes"
-      class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse"
+      class="absolute top-0.5 right-0 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-zinc-900 animate-pulse"
     ></span>
   </button>
 
