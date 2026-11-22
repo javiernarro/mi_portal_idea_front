@@ -4,7 +4,7 @@ import useDesactivar from '../composables/useDesactivar'
 import useEliminar from '../composables/useEliminar'
 import useEmpleados from '../composables/useEmpleados'
 import type { IEmpleado } from '../interfaces/empleado'
-import { verificarPermiso } from '@/guards/verificarPermiso'
+import { esAdmin, verificarPermiso } from '@/guards/verificarPermiso'
 import type { IEmpresa } from '@/components/empresa/interfaces/empresa'
 import useDatos from '../../../composables/useDatos'
 import useEmpresasPorNombre from '@/components/empresa/composables/useEmpresasPorNombre'
@@ -96,7 +96,8 @@ const exportCSV = () => {
             <v-button icon="pi pi-plus" label="Crear empleado" size="small" class="w-full" />
           </router-link>
         </div>
-        <div className="col-span-2 col-start-13 row-start-1">
+        <!-- Exportar la lista completa: solo el Administrador (Javier, 22-nov) -->
+        <div className="col-span-2 col-start-13 row-start-1" v-if="esAdmin()">
           <v-button
             icon="pi pi-external-link"
             label="Exportar"

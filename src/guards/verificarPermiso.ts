@@ -58,3 +58,12 @@ export const verificarSiMostrarCapacitacion = () => {
   }
   return false
 }
+
+/** true si la sesión es del perfil ADMIN (Administrador). */
+export const esAdmin = () => {
+  try {
+    return JSON.parse(localStorage.getItem('empleado') || 'null')?.data?.perfil?.nombre === 'ADMIN'
+  } catch {
+    return false
+  }
+}
