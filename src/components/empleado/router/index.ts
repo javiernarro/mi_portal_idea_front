@@ -57,7 +57,7 @@ export const empleadoRutas: RouteRecordRaw = {
           path: '/kardex/:id',
           name: 'kardex',
           meta: {
-            ruta_permitida: 'Empleados.Modificar',
+            ruta_permitida: 'Empleados.Kardex.Ver',
           },
           beforeEnter: [verificarAutenticacion],
           component: KardexEmpleado,
