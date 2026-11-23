@@ -42,7 +42,8 @@ const usePdf = () => {
     }
   }
 
-  const descargar = async (payload: IClaseEmpleado) => {
+  /** Arma el DC-3 en el navegador y regresa su nombre de archivo y el documento (no lo descarga). */
+  const generar = async (payload: IClaseEmpleado) => {
     empleado.value = `${payload.empleado?.apellidoPaterno} ${payload.empleado?.apellidoMaterno ? payload.empleado?.apellidoMaterno : ''} ${payload.empleado?.primerNombre} ${payload.empleado?.segundoNombre ? payload.empleado?.segundoNombre : ''}`
     const representanteEmpresa = payload.clase!.representanteEmpresa
       ? formatearNombre(payload.clase!.representanteEmpresa)
@@ -658,10 +659,27 @@ const usePdf = () => {
 
     const pdfDocGenerator = pdfMake.createPdf(docDefinition.value)
     const nombre = `${empleado.value.toUpperCase()}_${payload.clase!.curso.nombre.toUpperCase()}_${payload.clase!.areaTematica.nombre.toUpperCase()}`
+    return { nombre, empleado: empleado.value.toUpperCase(), pdfDocGenerator }
+  }
+
+  /** Un solo DC-3: se descarga directo como .pdf (igual que antes). */
+  const descargar = async (payload: IClaseEmpleado) => {
+    const { nombre, pdfDocGenerator } = await generar(payload)
     pdfDocGenerator.download(`${nombre}.pdf`)
   }
 
-  return { descargar }
+  /** El PDF como bytes, para meterlo en el .zip. */
+  const bytesPdf = async (payload: IClaseEmpleado) => {
+    const { nombre, empleado: persona, pdfDocGenerator } = await generar(payload)
+    const bytes = await new Promise<Uint8Array>((resolve) =>
+      pdfDocGenerator.getBuffer((buffer: ArrayBuffer | Uint8Array) =>
+        resolve(new Uint8Array(buffer)),
+      ),
+    )
+    return { nombre, persona, bytes }
+  }
+
+  return { descargar, bytesPdf }
 }
 
 export default usePdf

@@ -22,7 +22,7 @@ const aceptarComentarios = (x: IClaseEmpleado) => {
     aceptados.value = new Set(aceptados.value).add(x.id!)
   })
 }
-const { descargarCertificados } = usePdfsCertificados()
+const { descargarCertificados, descargando } = usePdfsCertificados()
 
 const certificadosSeleccionados = ref<IClaseEmpleado[]>([])
 
@@ -208,7 +208,8 @@ const filters = ref({
       size="small"
       type="button"
       @click="descargar"
-      :disabled="certificadosSeleccionados.length === 0"
+      :loading="descargando"
+      :disabled="certificadosSeleccionados.length === 0 || descargando"
     />
   </div>
 </template>
