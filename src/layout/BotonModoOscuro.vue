@@ -12,7 +12,7 @@ const { oscuro, alternar } = useModoOscuro()
     :class="{ 'interruptor--oscuro': oscuro }"
     :aria-checked="oscuro"
     :aria-label="oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-    v-tooltip.top="oscuro ? 'Modo claro' : 'Modo oscuro'"
+    v-tooltip.left="oscuro ? 'Modo claro' : 'Modo oscuro'"
     @click="alternar"
   >
     <span class="interruptor__perilla" aria-hidden="true"></span>

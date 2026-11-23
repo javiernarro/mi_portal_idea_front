@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import { computed, ref, watch } from 'vue'
 import { getMiHospedaje } from '@/components/alimentosHospedaje/services/alimentosHospedaje'
-import BotonModoOscuro from './BotonModoOscuro.vue'
 import PiePortal from './PiePortal.vue'
 import useModoOscuro from '@/composables/useModoOscuro'
 import {
@@ -13,7 +12,7 @@ import {
   verificarSiMostrarGestion,
 } from '@/guards/verificarPermiso'
 
-const { autenticado, logout } = useAuth()
+const { autenticado } = useAuth()
 // En el teléfono (p. ej. al escanear el QR de Caseta) el menú inicia cerrado para no tapar la pantalla
 const collapsed = ref<boolean>(window.innerWidth < 768)
 const { oscuro } = useModoOscuro()
@@ -45,17 +44,6 @@ const menu = computed(() => {
       title: 'Mis cursos',
       icon: 'pi pi-graduation-cap',
       href: '/mis-cursos',
-    },
-    {
-      title: 'Mi cuenta',
-      icon: 'pi pi-user',
-      child: [
-        {
-          href: '/cambiar-password',
-          title: 'Cambiar contraseña',
-          icon: 'pi pi-lock',
-        },
-      ],
     },
     {
       title: 'Gestion',
@@ -208,21 +196,7 @@ const onToggleCollapse = () => {
         <img src="/logo.webp" alt="logotipo" class="logo-portal w-[150px]!" />
       </div>
     </template>
-    <template v-slot:footer>
-      <!-- El cambio de modo claro/oscuro siempre está visible, también con el menú cerrado -->
-      <div class="px-2 pt-2 flex justify-center items-center">
-        <BotonModoOscuro />
-      </div>
-      <div class="p-2 flex! justify-center items-center">
-        <v-button
-          :label="collapsed ? '' : 'Salir'"
-          severity="danger"
-          icon="pi pi-power-off"
-          class="w-full"
-          @click="logout"
-        />
-      </div>
-    </template>
+    <!-- Cambiar contraseña, Tema y Salir están en el menú de la cuenta (al tocar el nombre, arriba a la derecha) -->
     <template v-slot:toggle-icon>
       <img
         src="/tractor-tire.png"
@@ -238,7 +212,6 @@ const onToggleCollapse = () => {
   </sidebar-menu>
 
   <div class="">
-    <!-- Botón de salir -->
     <div
       :class="{
         'body-full': autenticado && !collapsed,
